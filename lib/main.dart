@@ -12,17 +12,23 @@ class YegnaBudget extends StatelessWidget {
         backgroundColor: Colors.lightBlue[150], // Move the color here
         appBar: AppBar(title: Text('Yegna Budget')),
         bottomNavigationBar: BottomNavigationBar(
-          fixedColor: Colors.blueAccent[350],
+          backgroundColor: Color(0xFF973C00),
+          type:BottomNavigationBarType.fixed,
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          selectedItemColor: Color.fromARGB(255, 249, 220, 146),
+        unselectedItemColor: const Color.fromARGB(179, 233, 231, 231),
+         
           items: [
             // Button one (home/dashboard)
             BottomNavigationBarItem(
-              backgroundColor: Color.fromARGB(255, 244, 200, 3),
+              //backgroundColor: Color.fromARGB(255, 244, 200, 3),
               icon: Icon(Icons.home),
               label: 'Home',
             ),
             // Button two (financial tips)
             BottomNavigationBarItem(
-              backgroundColor: Color.fromARGB(255, 244, 200, 3),
+              //backgroundColor: Color.fromARGB(255, 244, 200, 3),
               icon: Icon(Icons.tips_and_updates),
               label: 'FinTips',
             ),
