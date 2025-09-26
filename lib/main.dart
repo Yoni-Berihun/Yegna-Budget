@@ -10,7 +10,29 @@ class YegnaBudget extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Colors.lightBlue[150], // Move the color here
-        appBar: AppBar(title: Text('Yegna Budget')),
+        appBar: AppBar(title: Text('Yegna Budget'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.language),
+            onPressed: () {
+              // Handle search action
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: () {
+              // Handle search action
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.night_shelter),
+            onPressed: () {
+              // Handle night or dark mode canges
+            },
+          ),
+        ],
+        
+        ),
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Color(0xFF973C00),
           type:BottomNavigationBarType.fixed,
