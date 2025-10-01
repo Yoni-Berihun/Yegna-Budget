@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class SplitterScreen extends StatelessWidget {
-  const SplitterScreen({super.key});
+class HomeContent extends StatelessWidget {
+  const HomeContent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +15,7 @@ class SplitterScreen extends StatelessWidget {
           ),
           SizedBox(height: 10),
           Text(
-            'Welcome to Splitter',
+            'Welcome to Settings',
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),
         ],
