@@ -25,44 +25,7 @@ class HomeScreen extends ConsumerWidget {
     final displayName = (name.isEmpty) ? 'User' : name;
     return Scaffold(
       backgroundColor: Colors.lightBlue[100],
-      appBar: AppBar(
-        title: Text('Selam $displayName'),
       
-      leading: IconButton(
-          icon: Icon(Icons.calendar_today),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Calendar feature coming soon! 📅')),
-            );
-          },
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.language),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Language settings coming soon!')),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Search feature coming soon!')),
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.night_shelter),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Dark mode coming soon!')),
-              );
-            },
-          ),
-        ],
-      ),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Color(0xFF973C00),
         type: BottomNavigationBarType.fixed,

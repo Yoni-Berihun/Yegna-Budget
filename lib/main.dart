@@ -18,7 +18,7 @@ Future<void> main() async {
         // initialize provider with saved name (if any)
         if ((savedName ?? '').isNotEmpty)
           userNameProvider.overrideWith(
-            () => UserNameNotifier()..state = savedName!,
+            () => UserNameNotifier(initial: savedName!),
           ),
       ],
       child: YegnaApp(

@@ -5,6 +5,10 @@ final userNameProvider = NotifierProvider<UserNameNotifier, String>(
 );
 
 class UserNameNotifier extends Notifier<String> {
+  final String initial;
+
+  UserNameNotifier({String? initial}) : initial = initial ?? '';
+
   @override
-  String build() => '';
+  String build() => initial;
 }
