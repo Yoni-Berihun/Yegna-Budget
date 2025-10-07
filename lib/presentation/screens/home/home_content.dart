@@ -13,6 +13,7 @@ class HomeContent extends ConsumerWidget {
     final budget = ref.watch(budgetProvider);
     final progress = budget.spentAmount / budget.totalBudget;
 final percentage = (progress * 100).toStringAsFixed(0); // e.g. "40"
+final remaining = budget.totalBudget - budget.spentAmount;
 
 
     return SafeArea(
@@ -149,22 +150,35 @@ final percentage = (progress * 100).toStringAsFixed(0); // e.g. "40"
                 ],
               ),
             ),
-            Expanded(
-              child: Column(
-                
-                // Right column: remaining balance + eye icon
-                children:[
-                           IconButton(
-                            icon: Icon(
-                              budget.showRemaining ? Icons.visibility : Icons.visibility_off,
-                            ),
-                            onPressed: () {
-                              ref.read(budgetProvider.notifier).toggleVisibility();
-                            },
-                     ),
-                ],
-              ),
-            ),
+          Expanded(
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: [
+      const Text(
+        'Remaining',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      ),
+      const SizedBox(height: 8),
+      Text(
+        budget.showRemaining
+            ? '${remaining.toStringAsFixed(2)} ETB'
+            : '*****',
+        style: const TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      IconButton(
+        icon: Icon(
+          budget.showRemaining ? Icons.visibility : Icons.visibility_off,
+        ),
+        onPressed: () {
+          ref.read(budgetProvider.notifier).toggleVisibility();
+        },
+      ),
+    ],
+  ),
+),
           ],
         ),
         const SizedBox(height: 16),
