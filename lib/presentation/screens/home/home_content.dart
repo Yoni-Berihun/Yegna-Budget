@@ -22,6 +22,7 @@ class HomeContent extends ConsumerWidget {
     appBar: PreferredSize(
       
   preferredSize: const Size.fromHeight(140),
+  
   child: AppBar(
     automaticallyImplyLeading: false,
     backgroundColor: Colors.white,   // ✅ clean background
@@ -86,10 +87,12 @@ class HomeContent extends ConsumerWidget {
                 color: Colors.grey[700], // ✅ softer secondary
               ),
             ),
-            
+            const SizedBox(height: 16),
+
           ],
         ),
       ],
+      
     ),
   ),
 ),
