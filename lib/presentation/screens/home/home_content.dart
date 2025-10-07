@@ -13,7 +13,7 @@ class HomeContent extends ConsumerWidget {
     final budget = ref.watch(budgetProvider);
     final progress = budget.spentAmount / budget.totalBudget;
 final percentage = (progress * 100).toStringAsFixed(0); // e.g. "40"
-final remaining = budget.totalBudget - budget.spentAmount;
+
 
     return SafeArea(
       child: Scaffold(
