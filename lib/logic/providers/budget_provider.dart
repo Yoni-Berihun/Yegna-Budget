@@ -13,6 +13,14 @@ void toggleVisibility() {
   state = state.copyWith(showRemaining: !state.showRemaining);
 }
   BudgetNotifier({double? initial}) : initial = initial ?? 7000;
+void updateBudget(double newBudget) {
+    // Basic validation and safety
+    final sanitized = newBudget.isNaN || newBudget <= 0 ? state.totalBudget : newBudget;
+state = state.copyWith(
+      totalBudget: sanitized,
+      // spentAmount: adjustedSpent, // use if you chose clamping above
+    );
+  }
 
   @override
   BudgetState build() {
