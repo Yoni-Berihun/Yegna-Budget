@@ -21,7 +21,7 @@ class HomeContent extends ConsumerWidget {
         backgroundColor: Colors.white,
     appBar: PreferredSize(
       
-  preferredSize: const Size.fromHeight(110),
+  preferredSize: const Size.fromHeight(140),
   child: AppBar(
     automaticallyImplyLeading: false,
     backgroundColor: Colors.white,   // ✅ clean background
@@ -64,12 +64,12 @@ class HomeContent extends ConsumerWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        
         // Row 2: Greeting
         Row(
           children: [
             const Text('👋', style: TextStyle(fontSize: 22)),
-            const SizedBox(width: 6),
+            const SizedBox(width:10 ),
             Text(
               'ሰላም $displayName',
               style: const TextStyle(
@@ -78,7 +78,7 @@ class HomeContent extends ConsumerWidget {
                 color: Colors.black87, // ✅ force dark
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 8),
             Text(
               'Selam $displayName',
               style: TextStyle(
@@ -86,12 +86,14 @@ class HomeContent extends ConsumerWidget {
                 color: Colors.grey[700], // ✅ softer secondary
               ),
             ),
+            
           ],
         ),
       ],
     ),
   ),
 ),
+
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
