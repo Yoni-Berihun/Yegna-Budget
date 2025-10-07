@@ -18,15 +18,16 @@ class HomeContent extends ConsumerWidget {
 
     return SafeArea(
       child: Scaffold(
+        backgroundColor: Colors.white,
     appBar: PreferredSize(
+      
   preferredSize: const Size.fromHeight(110),
   child: AppBar(
     automaticallyImplyLeading: false,
-    backgroundColor: Colors.white,
+    backgroundColor: Colors.white,   // ✅ clean background
     elevation: 0,
     title: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
         // Row 1: Calendar + Actions
         Row(
@@ -34,45 +35,32 @@ class HomeContent extends ConsumerWidget {
             TextButton.icon(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Calendar feature coming soon! 📅'),
-                  ),
+                  const SnackBar(content: Text('Calendar feature coming soon! 📅')),
                 );
               },
-              icon: const Icon(Icons.calendar_today, size: 18),
+              icon: const Icon(Icons.calendar_today, color: Colors.black87), // ✅ force dark
               label: const Text(
-                'መስከረም 17', // TODO: Ethiopian date
-                style: TextStyle(color: Colors.black87),
+                'መስከረም 17',
+                style: TextStyle(color: Colors.black87), // ✅ force dark
               ),
             ),
             const Spacer(),
             IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Search coming soon!')),
-                );
-              },
+              icon: const Icon(Icons.search, color: Colors.black87), // ✅ force dark
+              onPressed: () {},
             ),
             DropdownButton<String>(
               underline: const SizedBox(),
-              icon: const Icon(Icons.language),
+              icon: const Icon(Icons.language, color: Colors.black87), // ✅ force dark
               items: const [
                 DropdownMenuItem(value: 'en', child: Text('EN')),
                 DropdownMenuItem(value: 'am', child: Text('አማ')),
               ],
-              onChanged: (val) {
-                // TODO: implement language change
-              },
+              onChanged: (val) {},
             ),
             IconButton(
-              icon: const Icon(Icons.brightness_6),
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Dark/Light mode toggle soon!')),
-                );
-              },
+              icon: const Icon(Icons.brightness_6, color: Colors.black87), // ✅ force dark
+              onPressed: () {},
             ),
           ],
         ),
@@ -87,7 +75,7 @@ class HomeContent extends ConsumerWidget {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: Colors.black87, // ✅ force dark
               ),
             ),
             const SizedBox(width: 10),
@@ -95,7 +83,7 @@ class HomeContent extends ConsumerWidget {
               'Selam $displayName',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.grey[700],
+                color: Colors.grey[700], // ✅ softer secondary
               ),
             ),
           ],
