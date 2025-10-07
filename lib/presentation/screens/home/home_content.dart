@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../logic/providers/user_provider.dart';
-
+import '../../../logic/providers/budget_provider.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 class HomeContent extends ConsumerWidget {
   const HomeContent({super.key});
 
@@ -9,6 +10,10 @@ class HomeContent extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final name = ref.watch(userNameProvider);
     final displayName = name.isEmpty ? 'User' : name;
+    final budget = ref.watch(budgetProvider);
+    final progress = budget.spentAmount / budget.totalBudget;
+final percentage = (progress * 100).toStringAsFixed(0); // e.g. "40"
+final remaining = budget.totalBudget - budget.spentAmount;
 
     return SafeArea(
       child: Scaffold(
@@ -108,58 +113,81 @@ class HomeContent extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            // children: [
-            //   // Quick Actions
-            //   Text(
-            //     'Quick Actions',
-            //     style: Theme.of(context).textTheme.titleMedium,
-            //   ),
-            //   const SizedBox(height: 12),
-            //   Row(
-            //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-            //     children: const [
-            //       _QuickAction(icon: Icons.add_circle, label: 'Add Expense'),
-            //       _QuickAction(icon: Icons.tips_and_updates, label: 'Tips'),
-            //       _QuickAction(icon: Icons.bar_chart, label: 'Analysis'),
-            //     ],
-            //   ),
-            //   const SizedBox(height: 28),
-            //   // Budget Summary Card
-            //   Card(
-            //     elevation: 4,
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(16),
-            //     ),
-            //     child: Padding(
-            //       padding: const EdgeInsets.all(20),
-            //       child: Column(
-            //         crossAxisAlignment: CrossAxisAlignment.start,
-            //         children: [
-            //           const Text(
-            //             'This Month’s Budget',
-            //             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            //           ),
-            //           const SizedBox(height: 16),
-            //           LinearProgressIndicator(
-            //             value: 2300 / 7000, // spent / total
-            //             backgroundColor: Colors.grey[300],
-            //             color: Colors.blueAccent,
-            //             minHeight: 10,
-            //             borderRadius: BorderRadius.circular(8),
-            //           ),
-            //           const SizedBox(height: 12),
-            //           Row(
-            //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            //             children: const [
-            //               Text('Spent: 2,300 ETB'),
-            //               Text('Remaining: 4,700 ETB'),
-            //             ],
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ],
+            children:[
+              Card(
+  elevation: 4,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  child: Padding(
+    padding: const EdgeInsets.all(20),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+
+                // Left column: circular progress bar
+                children: [
+                  CircularPercentIndicator(
+             radius: 60,
+                 lineWidth: 10,
+                  percent: progress.clamp(0.0, 1.0),
+                   center: Text(
+                                  '$percentage%',
+                                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                                ),
+                   progressColor: Colors.blueAccent,
+                    backgroundColor: const Color(0xFF763A09),
+                    animation: true,
+                    ),
+                  const SizedBox(height: 8),
+                      Text(
+                        'Used',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: Column(
+                
+                // Right column: remaining balance + eye icon
+                children:[
+                           IconButton(
+                            icon: Icon(
+                              budget.showRemaining ? Icons.visibility : Icons.visibility_off,
+                            ),
+                            onPressed: () {
+                              ref.read(budgetProvider.notifier).toggleVisibility();
+                            },
+                     ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                // TODO: open edit budget modal
+              },
+              child: const Text('Edit Budget'),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              'Auto deducted from recent expenses',
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+),
+            ],
           ),
         ),
       ),
