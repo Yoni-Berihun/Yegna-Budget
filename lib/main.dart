@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'services/prefs_service.dart';
 import 'presentation/screens/welcome/welcome_screen.dart';
 import 'presentation/screens/home/home_screen.dart';
@@ -8,14 +11,18 @@ import 'logic/providers/user_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // load persisted username and welcome flag
+  // Initialize Hive for local storage
+  final appDocDir = await getApplicationDocumentsDirectory();
+  await Hive.initFlutter(appDocDir.path);
+  await Hive.openBox('feedbackBox'); // Box for storing tip feedback
+
+  // Load persisted username and welcome flag
   final bool firstTime = await PrefsService.isFirstTime();
   final String? savedName = await PrefsService.loadUserName();
 
   runApp(
     ProviderScope(
       overrides: [
-        // initialize provider with saved name (if any)
         if ((savedName ?? '').isNotEmpty)
           userNameProvider.overrideWith(
             () => UserNameNotifier(initial: savedName!),
