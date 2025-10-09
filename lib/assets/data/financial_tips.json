@@ -1,0 +1,22 @@
+[
+  {
+    "id": "tip1",
+    "title": "Add a Buffer for Unexpected Costs",
+    "summary": "Include 10–15% extra in your budget to handle surprises.",
+    "details": "Emergencies, price hikes, or spontaneous events can throw off your budget. Adding a buffer helps you stay prepared and stress-free.",
+    "icon": "💡",
+    "category": "Budgeting",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip2",
+    "title": "Track Spending by Category",
+    "summary": "Break down your expenses to see where your money goes.",
+    "details": "Use categories like Food, Transport, Rent, and Entertainment. This helps you identify overspending and adjust your habits.",
+    "icon": "📊",
+    "category": "Tracking",
+    "shareable": true,
+    "savable": true
+  }
+]
