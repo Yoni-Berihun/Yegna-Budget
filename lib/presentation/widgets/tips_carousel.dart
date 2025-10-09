@@ -26,7 +26,7 @@ class TipsCarousel extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${tip.icon} ${tip.title}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(' ${tip.title}', style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 6),
                     Text(tip.summary, style: const TextStyle(fontSize: 13)),
                     const Spacer(),

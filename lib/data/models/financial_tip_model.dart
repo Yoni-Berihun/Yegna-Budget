@@ -3,7 +3,6 @@ class FinancialTipModel {
   final String title;
   final String summary;
   final String details;
-  final String icon;
   final String category;
   final bool shareable;
   final bool savable;
@@ -14,7 +13,6 @@ class FinancialTipModel {
     required this.title,
     required this.summary,
     required this.details,
-    required this.icon,
     required this.category,
     required this.shareable,
     required this.savable,
@@ -27,7 +25,6 @@ class FinancialTipModel {
       title: json['title'],
       summary: json['summary'],
       details: json['details'],
-      icon: json['icon'],
       category: json['category'],
       shareable: json['shareable'],
       savable: json['savable'],

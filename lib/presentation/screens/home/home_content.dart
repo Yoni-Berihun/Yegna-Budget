@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../logic/providers/user_provider.dart';
 import '../../../logic/providers/budget_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import '../../../presentation/widgets/tips_carousel.dart';
 
 class HomeContent extends ConsumerWidget {
   const HomeContent({super.key});
@@ -19,84 +20,81 @@ class HomeContent extends ConsumerWidget {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
-    appBar: PreferredSize(
-      
-  preferredSize: const Size.fromHeight(140),
-  
-  child: AppBar(
-    automaticallyImplyLeading: false,
-    backgroundColor: Colors.white,   // ✅ clean background
-    elevation: 0,
-    title: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Row 1: Calendar + Actions
-        Row(
-          children: [
-            TextButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Calendar feature coming soon! 📅')),
-                );
-              },
-              icon: const Icon(Icons.calendar_today, color: Colors.black87), // ✅ force dark
-              label: const Text(
-                'መስከረም 17',
-                style: TextStyle(color: Colors.black87), // ✅ force dark
-              ),
-            ),
-            const Spacer(),
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.black87), // ✅ force dark
-              onPressed: () {},
-            ),
-            DropdownButton<String>(
-              underline: const SizedBox(),
-              icon: const Icon(Icons.language, color: Colors.black87), // ✅ force dark
-              items: const [
-                DropdownMenuItem(value: 'en', child: Text('EN')),
-                DropdownMenuItem(value: 'am', child: Text('አማ')),
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(140),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Calendar feature coming soon! 📅'),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.calendar_today,
+                        color: Colors.black87,
+                      ),
+                      label: const Text(
+                        'መስከረም 17',
+                        style: TextStyle(color: Colors.black87),
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.black87),
+                      onPressed: () {},
+                    ),
+                    DropdownButton<String>(
+                      underline: const SizedBox(),
+                      icon: const Icon(Icons.language, color: Colors.black87),
+                      items: const [
+                        DropdownMenuItem(value: 'en', child: Text('EN')),
+                        DropdownMenuItem(value: 'am', child: Text('አማ')),
+                      ],
+                      onChanged: (val) {},
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.brightness_6,
+                        color: Colors.black87,
+                      ),
+                      onPressed: () {},
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    const Text('👋', style: TextStyle(fontSize: 22)),
+                    const SizedBox(width: 10),
+                    Text(
+                      'ሰላም $displayName',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Selam $displayName',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
               ],
-              onChanged: (val) {},
             ),
-            IconButton(
-              icon: const Icon(Icons.brightness_6, color: Colors.black87), // ✅ force dark
-              onPressed: () {},
-            ),
-          ],
+          ),
         ),
-        
-        // Row 2: Greeting
-        Row(
-          children: [
-            const Text('👋', style: TextStyle(fontSize: 22)),
-            const SizedBox(width:10 ),
-            Text(
-              'ሰላም $displayName',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87, // ✅ force dark
-              ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              'Selam $displayName',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700], // ✅ softer secondary
-              ),
-            ),
-            const SizedBox(height: 16),
-
-          ],
-        ),
-      ],
-      
-    ),
-  ),
-),
-
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -105,14 +103,14 @@ class HomeContent extends ConsumerWidget {
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16)),
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
                       Row(
                         children: [
-                          // Left column
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -124,8 +122,9 @@ class HomeContent extends ConsumerWidget {
                                   center: Text(
                                     '$percentage%',
                                     style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                   progressColor: Colors.blueAccent,
                                   backgroundColor: Colors.grey[300]!,
@@ -135,13 +134,13 @@ class HomeContent extends ConsumerWidget {
                                 const Text(
                                   'Used',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
-                          // Right column
                           Expanded(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -150,8 +149,9 @@ class HomeContent extends ConsumerWidget {
                                 const Text(
                                   'Remaining',
                                   style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
@@ -190,7 +190,8 @@ class HomeContent extends ConsumerWidget {
                                 isScrollControlled: true,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(16)),
+                                    top: Radius.circular(16),
+                                  ),
                                 ),
                                 builder: (context) {
                                   return const EditBudgetSheet();
@@ -202,8 +203,7 @@ class HomeContent extends ConsumerWidget {
                           const SizedBox(height: 6),
                           const Text(
                             'Auto deducted from recent expenses',
-                            style:
-                                TextStyle(fontSize: 12, color: Colors.grey),
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
                           ),
                         ],
                       ),
@@ -211,6 +211,16 @@ class HomeContent extends ConsumerWidget {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 24),
+
+              // 👇 Financial Tips Carousel Section
+              const Text(
+                '💡 Financial Tips',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const TipsCarousel(), // 👈 Carousel now visible on Home tab
             ],
           ),
         ),
@@ -220,7 +230,6 @@ class HomeContent extends ConsumerWidget {
 }
 
 // ----------------- Edit Budget Bottom Sheet -----------------
-
 
 class EditBudgetSheet extends ConsumerStatefulWidget {
   const EditBudgetSheet({super.key});
