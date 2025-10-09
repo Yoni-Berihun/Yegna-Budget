@@ -7,6 +7,7 @@ class FinancialTipModel {
   final bool shareable;
   final bool savable;
   final String? imageUrl;
+  final String icon; // 👈 New field added
 
   FinancialTipModel({
     required this.id,
@@ -17,6 +18,7 @@ class FinancialTipModel {
     required this.shareable,
     required this.savable,
     this.imageUrl,
+    required this.icon, // 👈 Include in constructor
   });
 
   factory FinancialTipModel.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class FinancialTipModel {
       shareable: json['shareable'],
       savable: json['savable'],
       imageUrl: json['imageUrl'],
+      icon: json['icon'], // 👈 Parse from JSON
     );
   }
 }

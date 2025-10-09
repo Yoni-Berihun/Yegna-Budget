@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../data/models/financial_tip_model.dart';
-import '../../../logic/providers/financial_tips_provider.dart';
+
 class TipDetailScreen extends StatefulWidget {
   final FinancialTipModel tip;
   const TipDetailScreen({required this.tip, super.key});
@@ -13,6 +14,7 @@ class TipDetailScreen extends StatefulWidget {
 
 class _TipDetailScreenState extends State<TipDetailScreen> {
   bool? wasHelpful;
+  bool isBookmarked = false;
   final TextEditingController _feedbackController = TextEditingController();
 
   void _submitFeedback() {
@@ -36,6 +38,33 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
     });
   }
 
+  IconData _getIcon(String name) {
+    switch (name) {
+      case 'savings':
+        return Icons.savings;
+      case 'shopping_cart':
+        return Icons.shopping_cart;
+      case 'calendar_today':
+        return Icons.calendar_today;
+      case 'pie_chart':
+        return Icons.pie_chart;
+      case 'flag':
+        return Icons.flag;
+      case 'credit_card':
+        return Icons.credit_card;
+      case 'account_balance_wallet':
+        return Icons.account_balance_wallet;
+      case 'apps':
+        return Icons.apps;
+      case 'emoji_events':
+        return Icons.emoji_events;
+      case 'event':
+        return Icons.event;
+      default:
+        return Icons.lightbulb;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tip = widget.tip;
@@ -49,9 +78,22 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
         ),
         actions: [
           if (tip.savable)
-            IconButton(icon: const Icon(Icons.bookmark_border), onPressed: () {}),
+            IconButton(
+              icon: Icon(isBookmarked ? Icons.bookmark : Icons.bookmark_border),
+              onPressed: () {
+                setState(() => isBookmarked = !isBookmarked);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(isBookmarked ? 'Saved!' : 'Removed from bookmarks')),
+                );
+              },
+            ),
           if (tip.shareable)
-            IconButton(icon: const Icon(Icons.share), onPressed: () {}),
+            IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: () {
+                Share.share('${tip.title}\n\n${tip.details}');
+              },
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -59,16 +101,24 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Icon(_getIcon(tip.icon), size: 40, color: Colors.blueAccent),
+            const SizedBox(height: 12),
             if (tip.imageUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(tip.imageUrl!),
+                child: Image.asset(tip.imageUrl!, fit: BoxFit.cover),
+              )
+            else
+              Container(
+                height: 160,
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Center(child: Text('No image available')),
               ),
             const SizedBox(height: 12),
-            Text(
-              tip.details,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(tip.details, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 24),
 
             // Feedback Section
@@ -80,10 +130,7 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Was this helpful?',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                    const Text('Was this helpful?', style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Row(
                       children: [
