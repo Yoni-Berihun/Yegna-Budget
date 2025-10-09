@@ -35,3 +35,12 @@ class FinancialTipModel {
     );
   }
 }
+
+/* - assets/images/goal_setting.png
+    - assets/images/smart_shopping.png
+    - assets/images/debt_management.png
+    - assets/images/student_saving.png
+    - assets/images/free_tools.png
+    - assets/images/small_wins.png
+    - assets/images/holiday_budget.png
+    */
