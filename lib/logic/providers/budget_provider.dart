@@ -1,16 +1,13 @@
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final budgetProvider = NotifierProvider<BudgetNotifier, BudgetState>(BudgetNotifier.new);
+final budgetProvider = NotifierProvider<BudgetNotifier, BudgetState>(
+  BudgetNotifier.new,
+);
 
 class BudgetNotifier extends Notifier<BudgetState> {
   @override
   BudgetState build() {
-    return BudgetState(
-      totalBudget: 7000,
-      spentAmount: 0,
-      showRemaining: false,
-    );
+    return BudgetState(totalBudget: 7000, spentAmount: 0, showRemaining: false);
   }
 
   void addExpense(double amount) {
@@ -23,12 +20,13 @@ class BudgetNotifier extends Notifier<BudgetState> {
 
   void updateBudget(double newBudget) {
     // Basic validation and safety
-    final sanitized = newBudget.isNaN || newBudget <= 0 ? state.totalBudget : newBudget;
-    state = state.copyWith(
-      totalBudget: sanitized,
-    );
+    final sanitized = newBudget.isNaN || newBudget <= 0
+        ? state.totalBudget
+        : newBudget;
+    state = state.copyWith(totalBudget: sanitized);
   }
 }
+
 class BudgetState {
   final double totalBudget;
   final double spentAmount;

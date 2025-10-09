@@ -22,22 +22,37 @@ Future<void> main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        if ((savedName ?? '').isNotEmpty)
-          userNameProvider.overrideWith(
-            () => UserNameNotifier(initial: savedName!),
-          ),
-      ],
       child: YegnaApp(
         showWelcome: firstTime && (savedName == null || savedName.isEmpty),
+        initialUserName: savedName,
       ),
     ),
   );
 }
 
-class YegnaApp extends StatelessWidget {
+class YegnaApp extends ConsumerStatefulWidget {
   final bool showWelcome;
-  const YegnaApp({required this.showWelcome, super.key});
+  final String? initialUserName;
+
+  const YegnaApp({required this.showWelcome, this.initialUserName, super.key});
+
+  @override
+  ConsumerState<YegnaApp> createState() => _YegnaAppState();
+}
+
+class _YegnaAppState extends ConsumerState<YegnaApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Initialize user name if provided
+    if (widget.initialUserName != null && widget.initialUserName!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref
+            .read(userNameProvider.notifier)
+            .setUserName(widget.initialUserName!);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +60,7 @@ class YegnaApp extends StatelessWidget {
       title: 'YegnaBudget',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
-      home: showWelcome ? const WelcomeScreen() : const HomeScreen(),
+      home: widget.showWelcome ? const WelcomeScreen() : const HomeScreen(),
       routes: {
         '/home': (_) => const HomeScreen(),
         '/welcome': (_) => const WelcomeScreen(),
