@@ -3,8 +3,8 @@
     "id": "tip1",
     "title": "Add a Buffer for Unexpected Costs",
     "summary": "Include 10–15% extra in your budget to handle surprises.",
-    "details": "Emergencies, price hikes, or spontaneous events can throw off your budget. Adding a buffer helps you stay prepared and stress-free.",
-    "icon": "💡",
+    "details": "Emergencies, price hikes, or spontaneous events can throw off your budget. Adding a buffer helps you stay prepared and stress-free. For example, if your monthly budget is 5000 ETB, consider allocating 500–750 ETB as a buffer. This helps you avoid debt and stay in control. In Ethiopia, seasonal price fluctuations (e.g., during Meskel or New Year) can affect food and transport costs — plan ahead.",
+    "imageUrl": "assets/images/buffer_tip.png",
     "category": "Budgeting",
     "shareable": true,
     "savable": true
@@ -13,9 +13,89 @@
     "id": "tip2",
     "title": "Track Spending by Category",
     "summary": "Break down your expenses to see where your money goes.",
-    "details": "Use categories like Food, Transport, Rent, and Entertainment. This helps you identify overspending and adjust your habits.",
-    "icon": "📊",
+    "details": "Use categories like Food, Transport, Rent, and Entertainment. This helps you identify overspending and adjust your habits. For example, if you notice 40% of your budget goes to eating out, you can set a limit or cook more at home. In Hawassa, local transport and mobile data often sneak into daily costs — track them!",
+    "imageUrl": "assets/images/spending_chart.png",
     "category": "Tracking",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip3",
+    "title": "Review Your Budget Monthly",
+    "summary": "Your budget should evolve with your life.",
+    "details": "At the end of each month, reflect on what worked and what didn’t. Adjust your goals, categories, and limits to stay aligned. Did you overspend on transport? Did you forget to budget for airtime? Reviewing helps you stay intentional. Use your YegnaBudget app to compare months and spot trends.",
+    "imageUrl": "assets/images/monthly_review.png",
+    "category": "Planning",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip4",
+    "title": "Set Clear Financial Goals",
+    "summary": "Define what you're saving for and how much you need.",
+    "details": "Whether it's buying a laptop, paying tuition, or saving for a trip, having a goal gives your budget purpose. Break big goals into monthly targets. For example, saving 6000 ETB in 6 months means 1000 ETB per month. Use visuals or reminders to stay motivated.",
+    "imageUrl": "assets/images/goal_setting.png",
+    "category": "Goal Setting",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip5",
+    "title": "Shop Smart, Not Fast",
+    "summary": "Compare prices and avoid impulse buys.",
+    "details": "Before buying anything, ask: Do I need this now? Can I find it cheaper? In Ethiopia, prices vary between local shops and supermarkets. Use apps or ask friends to compare. Delay purchases by 24 hours — if you still want it, it’s probably worth it.",
+    "imageUrl": "assets/images/smart_shopping.png",
+    "category": "Shopping",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip6",
+    "title": "Avoid Unnecessary Debt",
+    "summary": "Borrow only when you have a clear repayment plan.",
+    "details": "Debt can be useful, but dangerous if unmanaged. Before borrowing, ask: What’s the interest? When will I repay? Avoid borrowing for non-essential items. In student life, peer pressure can lead to debt — stay focused on your goals.",
+    "imageUrl": "assets/images/debt_management.png",
+    "category": "Debt",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip7",
+    "title": "Save Before You Spend",
+    "summary": "Treat savings like a fixed expense.",
+    "details": "When money comes in, save first — even if it’s just 100 ETB. This builds discipline. Use a separate wallet or mobile account to avoid temptation. Students can save from allowances, freelance gigs, or airtime refunds.",
+    "imageUrl": "assets/images/student_saving.png",
+    "category": "Saving",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip8",
+    "title": "Use Free Tools and Resources",
+    "summary": "Maximize free apps, student discounts, and budgeting templates.",
+    "details": "You don’t need expensive software to manage money. Use free budgeting apps, Google Sheets, or even paper. Ask your university or student union for financial literacy workshops. YegnaBudget is designed to be free and accessible.",
+    "imageUrl": "assets/images/free_tools.png",
+    "category": "Tools",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip9",
+    "title": "Celebrate Small Wins",
+    "summary": "Reward yourself for staying on track.",
+    "details": "Budgeting isn’t punishment — it’s empowerment. When you hit a savings goal or avoid impulse spending, treat yourself (within reason). This builds positive momentum. For example, enjoy a coffee with friends or a movie night after a disciplined month.",
+    "imageUrl": "assets/images/small_wins.png",
+    "category": "Motivation",
+    "shareable": true,
+    "savable": true
+  },
+  {
+    "id": "tip10",
+    "title": "Plan for Holidays and Events",
+    "summary": "Budget for cultural and seasonal expenses.",
+    "details": "In Ethiopia, holidays like Fasika, Meskel, and New Year come with extra costs — food, transport, gifts. Include these in your monthly plan. If you know you’ll travel or host guests, start saving early. This avoids last-minute stress and overspending.",
+    "imageUrl": "assets/images/holiday_budget.png",
+    "category": "Seasonal",
     "shareable": true,
     "savable": true
   }

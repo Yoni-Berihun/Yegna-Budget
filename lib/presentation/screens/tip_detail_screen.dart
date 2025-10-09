@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../logic/providers/financial_tips_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../../../logic/providers/financial_tips_provider.dart';
 
 class TipDetailScreen extends StatefulWidget {
   final FinancialTipModel tip;
@@ -13,6 +15,27 @@ class TipDetailScreen extends StatefulWidget {
 class _TipDetailScreenState extends State<TipDetailScreen> {
   bool? wasHelpful;
   final TextEditingController _feedbackController = TextEditingController();
+
+  void _submitFeedback() {
+    final feedbackBox = Hive.box('feedbackBox');
+    final feedbackText = _feedbackController.text.trim();
+
+    feedbackBox.add({
+      'tipId': widget.tip.id,
+      'helpful': wasHelpful,
+      'comment': wasHelpful == false ? feedbackText : null,
+      'timestamp': DateTime.now().toIso8601String(),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Thanks for your feedback!')),
+    );
+
+    setState(() {
+      wasHelpful = null;
+      _feedbackController.clear();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +66,13 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
                 child: Image.network(tip.imageUrl!),
               ),
             const SizedBox(height: 12),
-            Text(tip.details, style: const TextStyle(fontSize: 16)),
+            Text(
+              tip.details,
+              style: const TextStyle(fontSize: 16),
+            ),
             const SizedBox(height: 24),
 
-            // Feedback Card
+            // Feedback Section
             Card(
               elevation: 2,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -89,15 +115,11 @@ class _TipDetailScreenState extends State<TipDetailScreen> {
                           hintText: 'Your suggestions...',
                         ),
                       ),
-                      const SizedBox(height: 8),
+                    ],
+                    if (wasHelpful != null) ...[
+                      const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: () {
-                          final feedback = _feedbackController.text;
-                          // TODO: Send feedback to backend or local storage
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Thanks for your feedback!')),
-                          );
-                        },
+                        onPressed: _submitFeedback,
                         child: const Text('Submit Feedback'),
                       ),
                     ],
