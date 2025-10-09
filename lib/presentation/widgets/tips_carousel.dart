@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../logic/providers/financial_tips_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../presentation/screens/tip_detail_screen.dart';
 
 class TipsCarousel extends ConsumerWidget {
   const TipsCarousel({super.key});

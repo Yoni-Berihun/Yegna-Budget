@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-
+import '../../../data/models/financial_tip_model.dart';
 import '../../../logic/providers/financial_tips_provider.dart';
-
 class TipDetailScreen extends StatefulWidget {
   final FinancialTipModel tip;
   const TipDetailScreen({required this.tip, super.key});
