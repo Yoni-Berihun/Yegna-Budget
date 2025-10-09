@@ -157,7 +157,7 @@ class HomeContent extends ConsumerWidget {
                                 Text(
                                   budget.showRemaining
                                       ? '${remaining.toStringAsFixed(2)} ETB'
-                                      : '*****',
+                                      : '******',
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
