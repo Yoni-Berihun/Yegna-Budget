@@ -8,6 +8,7 @@ import '../../../logic/providers/budget_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
+import '../calender/ethiopian_calender_page.dart';
 
 class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
@@ -22,22 +23,23 @@ class _HomeContentState extends ConsumerState<HomeContent> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = EtDatetime.now(); // default to today's Ethiopian date
+    // Initialize with current Gregorian date converted to Ethiopian
+    _selectedDate = EtDatetime.fromMillisecondsSinceEpoch(
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   void _pickDate(BuildContext context) async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+    final picked = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EthiopianCalendarPage(initialDate: _selectedDate),
+      ),
     );
 
-    if (picked != null) {
+    if (picked != null && picked is EtDatetime) {
       setState(() {
-        _selectedDate = EtDatetime.fromMillisecondsSinceEpoch(
-          picked.millisecondsSinceEpoch,
-        );
+        _selectedDate = picked;
       });
     }
   }
@@ -162,14 +164,32 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                Text(
-                                  budget.showRemaining
-                                      ? '${remaining.toStringAsFixed(2)} ETB'
-                                      : '******',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      budget.showRemaining
+                                          ? '${remaining.toStringAsFixed(2)} ETB'
+                                          : '******',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: Icon(
+                                        budget.showRemaining
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        size: 20,
+                                      ),
+                                      onPressed: () {
+                                        ref
+                                            .read(budgetProvider.notifier)
+                                            .toggleShowRemaining();
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -190,6 +210,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                   ),
                                 ),
                                 builder: (context) {
+                                  // 👇 Keep your existing EditBudgetSheet implementation
                                   return const EditBudgetSheet();
                                 },
                               );
@@ -228,7 +249,6 @@ class _HomeContentState extends ConsumerState<HomeContent> {
     );
   }
 }
-
 // ----------------- Edit Budget Bottom Sheet -----------------
 
 class EditBudgetSheet extends ConsumerStatefulWidget {

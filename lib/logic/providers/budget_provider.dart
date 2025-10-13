@@ -26,7 +26,8 @@ class BudgetNotifier extends Notifier<BudgetState> {
     );
   }
 
-  void toggleVisibility() {
+  /// 👇 Renamed to match your UI call
+  void toggleShowRemaining() {
     state = state.copyWith(showRemaining: !state.showRemaining);
   }
 
