@@ -7,7 +7,7 @@ import 'services/prefs_service.dart';
 import 'presentation/screens/welcome/welcome_screen.dart';
 import 'presentation/screens/home/home_screen.dart';
 import 'logic/providers/user_provider.dart';
-
+import 'core/theme/app_theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -44,12 +44,9 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize user name if provided
     if (widget.initialUserName != null && widget.initialUserName!.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref
-            .read(userNameProvider.notifier)
-            .setUserName(widget.initialUserName!);
+        ref.read(userNameProvider.notifier).setUserName(widget.initialUserName!);
       });
     }
   }
@@ -59,7 +56,9 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
     return MaterialApp(
       title: 'YegnaBudget',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: true),
+      theme: lightTheme,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system, // 👈 Auto-switch based on device settings
       home: widget.showWelcome ? const WelcomeScreen() : const HomeScreen(),
       routes: {
         '/home': (_) => const HomeScreen(),
