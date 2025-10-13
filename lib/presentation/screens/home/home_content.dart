@@ -4,6 +4,7 @@ import '../../../logic/providers/user_provider.dart';
 import '../../../logic/providers/budget_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
+import '../../widgets/analysis_card.dart';
 
 class HomeContent extends ConsumerWidget {
   const HomeContent({super.key});
@@ -220,7 +221,14 @@ class HomeContent extends ConsumerWidget {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              const TipsCarousel(), // 👈 Carousel now visible on Home tab
+              const TipsCarousel(),
+              const SizedBox(height: 24),
+                            const Text(
+                          '📊 Budget Analysis',
+                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                            const SizedBox(height: 12),
+                                const AnalysisCard(), // 👈 Carousel now visible on Home tab
             ],
           ),
         ),

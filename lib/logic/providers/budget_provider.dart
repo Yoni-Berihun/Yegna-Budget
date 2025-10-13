@@ -27,26 +27,32 @@ class BudgetNotifier extends Notifier<BudgetState> {
   }
 }
 
+
+
 class BudgetState {
   final double totalBudget;
   final double spentAmount;
   final bool showRemaining;
+  final List<Expense> expenses; // 👈 Add this
 
   BudgetState({
     required this.totalBudget,
     required this.spentAmount,
     required this.showRemaining,
+    required this.expenses,
   });
 
   BudgetState copyWith({
     double? totalBudget,
     double? spentAmount,
     bool? showRemaining,
+    List<Expense>? expenses,
   }) {
     return BudgetState(
       totalBudget: totalBudget ?? this.totalBudget,
       spentAmount: spentAmount ?? this.spentAmount,
       showRemaining: showRemaining ?? this.showRemaining,
+      expenses: expenses ?? this.expenses,
     );
   }
 }
