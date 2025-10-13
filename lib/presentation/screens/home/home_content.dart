@@ -1,17 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:abushakir/abushakir.dart';
+
 import '../../../logic/providers/user_provider.dart';
 import '../../../logic/providers/budget_provider.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import '../../../logic/providers/theme_provider.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
-import '../../../logic/providers/theme_provider.dart';
 
-class HomeContent extends ConsumerWidget {
+class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends ConsumerState<HomeContent> {
+  late EtDatetime _selectedDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDate = EtDatetime.now(); // default to today's Ethiopian date
+  }
+
+  void _pickDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedDate = EtDatetime.fromMillisecondsSinceEpoch(
+          picked.millisecondsSinceEpoch,
+        );
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final name = ref.watch(userNameProvider);
     final displayName = name.isEmpty ? 'User' : name;
     final budget = ref.watch(budgetProvider);
@@ -21,14 +53,16 @@ class HomeContent extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
     final isDark = themeMode == ThemeMode.dark;
 
+    final formattedDate = "${_selectedDate.monthGeez} ${_selectedDate.day}";
+
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(140),
           child: AppBar(
             automaticallyImplyLeading: false,
-            backgroundColor: Colors.white,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 0,
             title: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,30 +70,18 @@ class HomeContent extends ConsumerWidget {
                 Row(
                   children: [
                     TextButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Calendar feature coming soon! 📅'),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.calendar_today,
-                        color: Colors.black87,
-                      ),
-                      label: const Text(
-                        'መስከረም 17',
-                        style: TextStyle(color: Colors.black87),
-                      ),
+                      onPressed: () => _pickDate(context),
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(formattedDate),
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.search, color: Colors.black87),
+                      icon: const Icon(Icons.search),
                       onPressed: () {},
                     ),
                     DropdownButton<String>(
                       underline: const SizedBox(),
-                      icon: const Icon(Icons.language, color: Colors.black87),
+                      icon: const Icon(Icons.language),
                       items: const [
                         DropdownMenuItem(value: 'en', child: Text('EN')),
                         DropdownMenuItem(value: 'am', child: Text('አማ')),
@@ -69,12 +91,10 @@ class HomeContent extends ConsumerWidget {
                     IconButton(
                       icon: Icon(
                         isDark ? Icons.light_mode : Icons.dark_mode,
-                        color: Theme.of(context).iconTheme.color,
                       ),
                       onPressed: () {
                         ref.read(themeModeProvider.notifier).toggleTheme();
                       },
-
                     ),
                   ],
                 ),
@@ -87,7 +107,6 @@ class HomeContent extends ConsumerWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Colors.black87,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -95,7 +114,6 @@ class HomeContent extends ConsumerWidget {
                       'Selam $displayName',
                       style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                     ),
-                    const SizedBox(height: 16),
                   ],
                 ),
               ],
@@ -126,24 +144,7 @@ class HomeContent extends ConsumerWidget {
                                   radius: 60,
                                   lineWidth: 10,
                                   percent: progress.clamp(0.0, 1.0),
-                                  center: Text(
-                                    '$percentage%',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  progressColor: Colors.blueAccent,
-                                  backgroundColor: Colors.grey[300]!,
-                                  animation: true,
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Used',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  center: Text('$percentage%'),
                                 ),
                               ],
                             ),
@@ -169,18 +170,6 @@ class HomeContent extends ConsumerWidget {
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    budget.showRemaining
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: () {
-                                    ref
-                                        .read(budgetProvider.notifier)
-                                        .toggleVisibility();
-                                  },
                                 ),
                               ],
                             ),
@@ -218,10 +207,7 @@ class HomeContent extends ConsumerWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
-              // 👇 Financial Tips Carousel Section
               const Text(
                 '💡 Financial Tips',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -229,12 +215,12 @@ class HomeContent extends ConsumerWidget {
               const SizedBox(height: 12),
               const TipsCarousel(),
               const SizedBox(height: 24),
-                            const Text(
-                          '📊 Budget Analysis',
-                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                            const SizedBox(height: 12),
-                                const AnalysisCard(), // 👈 Carousel now visible on Home tab
+              const Text(
+                '📊 Budget Analysis',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 12),
+              const AnalysisCard(),
             ],
           ),
         ),
