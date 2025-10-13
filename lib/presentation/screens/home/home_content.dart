@@ -5,6 +5,7 @@ import '../../../logic/providers/budget_provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
+import '../../../logic/providers/theme_provider.dart';
 
 class HomeContent extends ConsumerWidget {
   const HomeContent({super.key});
@@ -17,6 +18,8 @@ class HomeContent extends ConsumerWidget {
     final progress = budget.spentAmount / budget.totalBudget;
     final percentage = (progress * 100).toStringAsFixed(0);
     final remaining = budget.totalBudget - budget.spentAmount;
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
 
     return SafeArea(
       child: Scaffold(
@@ -64,11 +67,14 @@ class HomeContent extends ConsumerWidget {
                       onChanged: (val) {},
                     ),
                     IconButton(
-                      icon: const Icon(
-                        Icons.brightness_6,
-                        color: Colors.black87,
+                      icon: Icon(
+                        isDark ? Icons.light_mode : Icons.dark_mode,
+                        color: Theme.of(context).iconTheme.color,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        ref.read(themeModeProvider.notifier).toggleTheme();
+                      },
+
                     ),
                   ],
                 ),

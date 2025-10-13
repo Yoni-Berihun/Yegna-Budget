@@ -7,16 +7,17 @@ import 'services/prefs_service.dart';
 import 'presentation/screens/welcome/welcome_screen.dart';
 import 'presentation/screens/home/home_screen.dart';
 import 'logic/providers/user_provider.dart';
+import 'logic/providers/theme_provider.dart';
 import 'core/theme/app_theme.dart';
+
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive for local storage
   final appDocDir = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(appDocDir.path);
-  await Hive.openBox('feedbackBox'); // Box for storing tip feedback
+  await Hive.openBox('feedbackBox');
 
-  // Load persisted username and welcome flag
   final bool firstTime = await PrefsService.isFirstTime();
   final String? savedName = await PrefsService.loadUserName();
 
@@ -53,12 +54,14 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider); // 👈 Watch provider
+
     return MaterialApp(
       title: 'YegnaBudget',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
-      themeMode: ThemeMode.system, // 👈 Auto-switch based on device settings
+      themeMode: themeMode, // 👈 Dynamic theme switching
       home: widget.showWelcome ? const WelcomeScreen() : const HomeScreen(),
       routes: {
         '/home': (_) => const HomeScreen(),
