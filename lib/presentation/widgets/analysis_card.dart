@@ -8,12 +8,14 @@ class AnalysisCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final budget = ref.watch(budgetProvider);
+    final notifier = ref.read(budgetProvider.notifier);
+
     final remaining = budget.totalBudget - budget.spentAmount;
     final savingsRate = (remaining / budget.totalBudget * 100).clamp(0, 100).toStringAsFixed(1);
     final averageExpense = (budget.expenses.isNotEmpty
         ? budget.spentAmount / budget.expenses.length
         : 0).toStringAsFixed(2);
-    final topCategory = budget.topCategory ?? 'N/A';
+    final topCategory = notifier.topCategory ?? 'N/A';
 
     return Card(
       elevation: 4,
