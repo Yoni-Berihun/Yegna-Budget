@@ -7,7 +7,11 @@ class FinancialTipModel {
   final bool shareable;
   final bool savable;
   final String? imageUrl;
-  final String icon; // 👈 New field added
+  final String icon;
+
+  // 👇 New optional fields for daily context
+  final bool isDaily;
+  final DateTime? featuredDate;
 
   FinancialTipModel({
     required this.id,
@@ -18,7 +22,9 @@ class FinancialTipModel {
     required this.shareable,
     required this.savable,
     this.imageUrl,
-    required this.icon, // 👈 Include in constructor
+    required this.icon,
+    this.isDaily = false,
+    this.featuredDate,
   });
 
   factory FinancialTipModel.fromJson(Map<String, dynamic> json) {
@@ -31,11 +37,28 @@ class FinancialTipModel {
       shareable: json['shareable'],
       savable: json['savable'],
       imageUrl: json['imageUrl'],
-      icon: json['icon'], // 👈 Parse from JSON
+      icon: json['icon'],
+      isDaily: json['isDaily'] ?? false,
+      featuredDate: json['featuredDate'] != null
+          ? DateTime.parse(json['featuredDate'])
+          : null,
     );
   }
-}
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'summary': summary,
+        'details': details,
+        'category': category,
+        'shareable': shareable,
+        'savable': savable,
+        'imageUrl': imageUrl,
+        'icon': icon,
+        'isDaily': isDaily,
+        'featuredDate': featuredDate?.toIso8601String(),
+      };
+}
 /* - assets/images/goal_setting.png
     - assets/images/smart_shopping.png
     - assets/images/debt_management.png
