@@ -5,7 +5,7 @@ import '../../../logic/providers/nav_provider.dart';
 import '../analysis/analysis_screen.dart';
 import '../settings/settings_screen.dart';
 import '../splitter/splitter_screen.dart';
-import '../tips/tips_screen.dart';
+import '../tips/financial_tips_screen.dart';
 import 'home_content.dart';
 
 class HomeScreen extends ConsumerWidget {

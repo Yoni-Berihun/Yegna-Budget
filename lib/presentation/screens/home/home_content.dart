@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:abushakir/abushakir.dart';
-
+import 'package:yegna_budget/presentation/widgets/tips_and_challenge_card.dart';
 import '../../../logic/providers/user_provider.dart';
 import '../../../logic/providers/budget_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
