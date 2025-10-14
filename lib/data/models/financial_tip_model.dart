@@ -8,12 +8,10 @@ class FinancialTipModel {
   final bool savable;
   final String? imageUrl;
   final String icon;
-
-  // 👇 New optional fields for daily context
   final bool isDaily;
   final DateTime? featuredDate;
 
-  FinancialTipModel({
+  const FinancialTipModel({
     required this.id,
     required this.title,
     required this.summary,
@@ -34,13 +32,13 @@ class FinancialTipModel {
       summary: json['summary'],
       details: json['details'],
       category: json['category'],
-      shareable: json['shareable'],
-      savable: json['savable'],
+      shareable: json['shareable'] ?? false,
+      savable: json['savable'] ?? false,
       imageUrl: json['imageUrl'],
       icon: json['icon'],
       isDaily: json['isDaily'] ?? false,
       featuredDate: json['featuredDate'] != null
-          ? DateTime.parse(json['featuredDate'])
+          ? DateTime.tryParse(json['featuredDate'])
           : null,
     );
   }
@@ -58,6 +56,34 @@ class FinancialTipModel {
         'isDaily': isDaily,
         'featuredDate': featuredDate?.toIso8601String(),
       };
+
+  FinancialTipModel copyWith({
+    String? id,
+    String? title,
+    String? summary,
+    String? details,
+    String? category,
+    bool? shareable,
+    bool? savable,
+    String? imageUrl,
+    String? icon,
+    bool? isDaily,
+    DateTime? featuredDate,
+  }) {
+    return FinancialTipModel(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      summary: summary ?? this.summary,
+      details: details ?? this.details,
+      category: category ?? this.category,
+      shareable: shareable ?? this.shareable,
+      savable: savable ?? this.savable,
+      imageUrl: imageUrl ?? this.imageUrl,
+      icon: icon ?? this.icon,
+      isDaily: isDaily ?? this.isDaily,
+      featuredDate: featuredDate ?? this.featuredDate,
+    );
+  }
 }
 /* - assets/images/goal_setting.png
     - assets/images/smart_shopping.png

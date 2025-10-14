@@ -12,17 +12,7 @@ class FinancialTipsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool hasTips = tips.isNotEmpty;
-
-    // If you added `isDaily` to the model, uncomment the block below and remove the fallback:
-    // final FinancialTipModel? todaysTip = hasTips
-    //     ? tips.firstWhere(
-    //         (t) => t.isDaily == true,
-    //         orElse: () => tips.first,
-    //       )
-    //     : null;
-
-    // Fallback if `isDaily` is NOT in your model yet:
-    final FinancialTipModel? todaysTip = hasTips ? tips.first : null;
+    final FinancialTipModel? todaysTip = hasTips ? _pickDailyTip(tips) : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,10 +43,7 @@ class FinancialTipsScreen extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  "Recent Tips",
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+                Text("Recent Tips", style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 12),
                 ...tips.skip(1).map(
                   (t) => Card(
@@ -80,12 +67,28 @@ class FinancialTipsScreen extends StatelessWidget {
                 ),
               ],
             )
-          : _EmptyState(),
+          : const _EmptyState(),
+    );
+  }
+
+  FinancialTipModel _pickDailyTip(List<FinancialTipModel> tips) {
+    // If any tip is flagged as daily, prefer it
+    final flagged = tips.where((t) => t.isDaily).toList();
+    if (flagged.isNotEmpty) return flagged.first;
+
+    // Otherwise make it deterministic per day (no randomness mid-day)
+    final today = DateTime.now();
+    final index = today.day % tips.length;
+    return tips[index].copyWith(
+      isDaily: true,
+      featuredDate: DateTime(today.year, today.month, today.day),
     );
   }
 }
 
 class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -96,10 +99,8 @@ class _EmptyState extends StatelessWidget {
           children: [
             const Icon(Icons.info_outline, size: 40),
             const SizedBox(height: 12),
-            Text(
-              "No tips available yet",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text("No tips available yet",
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             Text(
               "Add tips to your data source and come back.",

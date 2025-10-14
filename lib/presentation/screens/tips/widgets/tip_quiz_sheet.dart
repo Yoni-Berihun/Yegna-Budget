@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../data/models/financial_tip.dart';
+import 'package:yegna_budget/data/models/financial_tip_model.dart';
 
 class TipQuizSheet extends StatefulWidget {
-  final FinancialTip tip;
+  final FinancialTipModel tip;
   const TipQuizSheet({super.key, required this.tip});
 
   @override
