@@ -9,6 +9,7 @@ import '../../../logic/providers/theme_provider.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
 import '../calender/ethiopian_calender_page.dart';
+import '../expense/add_expense_sheet.dart';
 
 class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key});
@@ -245,6 +246,41 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             ],
           ),
         ),
+        floatingActionButton: GestureDetector(
+  onTap: () {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const AddExpenseSheet(),
+    );
+  },
+  child: AnimatedContainer(
+    duration: const Duration(milliseconds: 500),
+    curve: Curves.easeInOut,
+    height: 64,
+    width: 64,
+    decoration: BoxDecoration(
+      shape: BoxShape.circle,
+      gradient: const LinearGradient(
+        colors: [Colors.orange, Colors.red],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.orange.withOpacity(0.6),
+          blurRadius: 12,
+          spreadRadius: 2,
+        ),
+      ],
+    ),
+    child: const Center(
+      child: Icon(Icons.add, color: Colors.white, size: 32),
+    ),
+  ),
+),
+floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }
