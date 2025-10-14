@@ -22,7 +22,7 @@ class _TipsCarouselState extends ConsumerState<TipsCarousel> {
 
   void _autoSlide() {
     if (!mounted) return;
-    final tips = ref.read(financialTipsProvider).value;
+    final tips = ref.read(tipsFutureProvider).value; // ✅ fixed
     if (tips == null || tips.isEmpty) return;
 
     setState(() {
@@ -40,7 +40,7 @@ class _TipsCarouselState extends ConsumerState<TipsCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    final tipsAsync = ref.watch(financialTipsProvider);
+    final tipsAsync = ref.watch(tipsFutureProvider); // ✅ fixed
 
     return tipsAsync.when(
       data: (tips) => SizedBox(
@@ -52,21 +52,27 @@ class _TipsCarouselState extends ConsumerState<TipsCarousel> {
             final tip = tips[index];
             return Card(
               color: Colors.blue[50],
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               margin: const EdgeInsets.symmetric(horizontal: 8),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Row(
                   children: [
-                    Icon(_getIcon(tip.icon), size: 32, color: Colors.blueAccent),
+                    Icon(_getIcon(tip.icon),
+                        size: 32, color: Colors.blueAccent),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(tip.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          Text(tip.title,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16)),
                           const SizedBox(height: 4),
-                          Text(tip.summary, style: const TextStyle(fontSize: 13, color: Colors.black87)),
+                          Text(tip.summary,
+                              style: const TextStyle(
+                                  fontSize: 13, color: Colors.black87)),
                           const Spacer(),
                           Align(
                             alignment: Alignment.bottomRight,

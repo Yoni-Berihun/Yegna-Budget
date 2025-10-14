@@ -6,7 +6,6 @@ import '../analysis/analysis_screen.dart';
 import '../settings/settings_screen.dart';
 import '../splitter/splitter_screen.dart';
 import '../tips/financial_tips_screen.dart';
-import '../../../data/models/financial_tip_model.dart';
 import 'home_content.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -17,33 +16,9 @@ class HomeScreen extends ConsumerWidget {
     final name = ref.watch(userNameProvider);
     final currentIndex = ref.watch(navProvider);
 
-    final demoTips = [
-      FinancialTipModel(
-        id: '1',
-        title: 'Start small, stay consistent',
-        summary: 'Save 10 ETB daily. Tiny habits compound.',
-        details: 'Consistency beats intensity. Begin with 10 ETB daily...',
-        category: 'Saving',
-        shareable: true,
-        savable: true,
-        icon: '💡',
-        isDaily: true,
-      ),
-      FinancialTipModel(
-        id: '2',
-        title: 'Envelope budgeting',
-        summary: 'Divide money into envelopes: Essentials, Future You, Generosity.',
-        details: 'Envelope budgeting helps restrain impulse spending...',
-        category: 'Budgeting',
-        shareable: true,
-        savable: true,
-        icon: '📦',
-      ),
-    ];
-
     final tabs = [
       const HomeContent(),
-      FinancialTipsScreen(tips: demoTips),
+      const FinancialTipsScreen(), // no tips argument
       const AnalysisScreen(),
       const SplitterScreen(),
       const SettingsScreen(),

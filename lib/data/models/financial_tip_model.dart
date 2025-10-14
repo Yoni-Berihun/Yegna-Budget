@@ -28,20 +28,15 @@ class FinancialTipModel {
   final String id;
   final String title;
   final String summary;
-  final String details;     // deep dive content
-  final String category;    // e.g., "Budgeting Basics"
+  final String details;
+  final String category;
   final bool shareable;
   final bool savable;
   final String? imageUrl;
-  final String icon;        // emoji or short label
-
-  // Daily tip metadata
+  final String icon;
   final bool isDaily;
   final DateTime? featuredDate;
-
-  // Optional learning extras
   final Quiz? quiz;
-  final List<String>? quotes;
 
   const FinancialTipModel({
     required this.id,
@@ -56,26 +51,24 @@ class FinancialTipModel {
     this.isDaily = false,
     this.featuredDate,
     this.quiz,
-    this.quotes,
   });
 
   factory FinancialTipModel.fromJson(Map<String, dynamic> json) {
     return FinancialTipModel(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      summary: json['summary'] as String,
-      details: json['details'] as String,
-      category: json['category'] as String,
-      shareable: (json['shareable'] as bool?) ?? false,
-      savable: (json['savable'] as bool?) ?? false,
-      imageUrl: json['imageUrl'] as String?,
-      icon: json['icon'] as String,
-      isDaily: (json['isDaily'] as bool?) ?? false,
+      id: json['id'],
+      title: json['title'],
+      summary: json['summary'],
+      details: json['details'],
+      category: json['category'],
+      shareable: json['shareable'] ?? false,
+      savable: json['savable'] ?? false,
+      imageUrl: json['imageUrl'],
+      icon: json['icon'],
+      isDaily: json['isDaily'] ?? false,
       featuredDate: json['featuredDate'] != null
-          ? DateTime.tryParse(json['featuredDate'] as String)
+          ? DateTime.tryParse(json['featuredDate'])
           : null,
-      quiz: json['quiz'] != null ? Quiz.fromJson(json['quiz'] as Map<String, dynamic>) : null,
-      quotes: json['quotes'] != null ? List<String>.from(json['quotes'] as List) : null,
+      quiz: json['quiz'] != null ? Quiz.fromJson(json['quiz']) : null,
     );
   }
 
@@ -92,40 +85,7 @@ class FinancialTipModel {
         'isDaily': isDaily,
         'featuredDate': featuredDate?.toIso8601String(),
         'quiz': quiz?.toJson(),
-        'quotes': quotes,
       };
-
-  FinancialTipModel copyWith({
-    String? id,
-    String? title,
-    String? summary,
-    String? details,
-    String? category,
-    bool? shareable,
-    bool? savable,
-    String? imageUrl,
-    String? icon,
-    bool? isDaily,
-    DateTime? featuredDate,
-    Quiz? quiz,
-    List<String>? quotes,
-  }) {
-    return FinancialTipModel(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      summary: summary ?? this.summary,
-      details: details ?? this.details,
-      category: category ?? this.category,
-      shareable: shareable ?? this.shareable,
-      savable: savable ?? this.savable,
-      imageUrl: imageUrl ?? this.imageUrl,
-      icon: icon ?? this.icon,
-      isDaily: isDaily ?? this.isDaily,
-      featuredDate: featuredDate ?? this.featuredDate,
-      quiz: quiz ?? this.quiz,
-      quotes: quotes ?? this.quotes,
-    );
-  }
 }
 /* - assets/images/goal_setting.png
     - assets/images/smart_shopping.png

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart'; // make sure lottie is in pubspec.yaml
+import 'package:lottie/lottie.dart';
 import 'package:yegna_budget/data/models/financial_tip_model.dart';
 
 class TipQuizSheet extends StatefulWidget {
@@ -40,7 +40,7 @@ class _TipQuizSheetState extends State<TipQuizSheet> {
               ),
               const SizedBox(height: 12),
 
-              // Options
+              // Quiz options
               ...List.generate(quiz.options.length, (i) {
                 final isSelected = _selectedIndex == i;
                 final isCorrect = _answered && i == quiz.correctIndex;
@@ -84,7 +84,6 @@ class _TipQuizSheetState extends State<TipQuizSheet> {
                             content: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                // Success or error animation
                                 _isCorrect
                                     ? Lottie.asset(
                                         'assets/animations/success.json',
