@@ -108,5 +108,117 @@
     "category": "Seasonal",
     "shareable": true,
     "savable": true
-  }
+  },
+  {
+  "id": "tip11",
+  "title": "Group Coffee Economics",
+  "summary": "Pool coffee costs with friends to reduce daily spending and build a savings habit.",
+  "details": "Coffee in Ethiopia is more than a beverage; it is a cultural anchor and a rhythm that shapes community. For students, daily buna can quietly drain budgets—small amounts add up across weeks. Group Coffee Economics turns a beloved ritual into a savings engine. The principle is simple: agree with three–five friends to share coffee expenses on a rotating basis. Each day, one person covers the group, while everyone else sets aside their usual coffee money into a personal savings jar or mobile wallet. This approach creates two compounding effects: reduced frequency of out-of-pocket spending and a visible, measurable accumulation. Start by calculating your typical weekly coffee spend (e.g., ETB 25 per day × 5 days = ETB 125). With rotation, you might pay ETB 25 once and save ETB 100 into your emergency fund or graduation fund. To maintain fairness, track rotation with a simple calendar and settle variations weekly. Pair the ritual with a micro-goal: 30 days of group coffee equals one month of consistent saving. Align with SDG 1 (No Poverty): micro-savings protect against shocks, reduce stress, and build resilience. Enhance the habit by naming your savings container (e.g., “Future Laptop” or “Emergency Fund”) and log progress weekly. Keep the ritual social but intentional—celebrate milestones like 1,000 ETB saved with a modest group treat. Integrate digital options (TeleBirr, bank apps) for safer storage. If a friend can’t pay on their day, switch rota and keep saving; consistency matters more than perfection. Over time, the value isn’t just financial. You learn discipline, mutual support, and the power of small daily choices. This is not about cancelling culture; it is about redesigning it to serve your future.",
+  "category": "Social Savings",
+  "shareable": true,
+  "savable": true,
+  "icon": "☕",
+  "isDaily": true,
+  "quiz": {
+    "question": "What is the main benefit of Group Coffee Economics for students?",
+    "options": [
+      "It reduces the frequency of paying out-of-pocket while building consistent savings",
+      "It eliminates the need for budgeting entirely",
+      "It increases entertainment spending",
+      "It encourages frequent borrowing"
+    ],
+    "correctIndex": 0
+  },
+  "quotes": [
+    "Small daily savings grow into meaningful safety nets.",
+    "Culture can be a bridge to smarter money habits."
+  ]
+},
+{
+  "id": "tip12",
+  "title": "The 50/30/20 Budget Rule for Students",
+  "summary": "Use a simple framework: 50% needs, 30% wants, 20% savings/emergency.",
+  "details": "Budgeting succeeds when it is simple and repeatable. The 50/30/20 rule gives students a clear structure for monthly money: 50% for needs (food, transport, utilities, tuition), 30% for wants (social, hobbies, dining out), and 20% for savings or emergency funds. Start by listing all monthly inflows (stipends, family support, part-time work). Map needs first—be honest and specific. If your stipend is ETB 2,000, target ETB 1,000 for needs, ETB 600 for wants, and ETB 400 for savings. To operationalize, use envelope categories or digital trackers. Review weekly: if wants exceed 30%, adjust next week rather than abandoning the plan. Keep savings non-negotiable—pay yourself first at the start of the month. Align with SDG 1 by building a cushion: even ETB 200 saved monthly creates stability over a semester. When costs spike (e.g., books), pull from wants, not from savings. If income is irregular, apply percentages to each inflow to keep the pattern consistent. Add a micro-challenge: freeze one discretionary category (e.g., dining out) for a week and reallocate to savings. This rule isn’t rigid; it’s a compass—adapt percentages during exam months and normalize afterward. Track progress visibly: a wall chart or app streak can sustain motivation. In short, structure turns stress into clarity.",
+  "category": "Budgeting Basics",
+  "shareable": true,
+  "savable": true,
+  "icon": "📊",
+  "quiz": {
+    "question": "In the 50/30/20 rule, what percentage is allocated to savings?",
+    "options": ["10%", "20%", "30%", "50%"],
+    "correctIndex": 1
+  },
+  "quotes": [
+    "Pay yourself first: savings is a bill to your future.",
+    "A budget is telling your money where to go, not wondering where it went."
+  ]
+},
+{
+  "id": "tip13",
+  "title": "Three-Envelope Method: Essentials, Future You, Generosity",
+  "summary": "Divide cash into three envelopes to reduce impulsive spending and build balance.",
+  "details": "Cash control improves when decisions become visual. The Three-Envelope Method asks you to allocate money into three physical or digital envelopes: Essentials (needs), Future You (savings/investments), and Generosity (giving/community). This balances personal stability with social values. Start with proportions like 60/30/10 if your needs are heavier, or default to 50/30/20 if sustainable. Label envelopes clearly; carry only the Essentials envelope daily to reduce impulse purchases. Future You should be harder to access—store at home or in a savings account. Generosity can be modest but consistent; small acts strengthen community ties and well-being. Review weekly: move any leftover from Essentials into Future You. This simple ritual reduces friction and emotional spending. Aligns with SDG 1: consistent savings and community support build resilience and reduce vulnerability. For students sharing housing, combine Essentials envelopes for shared costs (e.g., internet) and reconcile monthly. Track envelope flow with a simple ledger: date, amount, category, note. Add a constraint: pause Generosity for one week to fund a textbook, then resume. Over time, the visual feedback loop trains discipline. You are not depriving yourself; you are choosing your future deliberately.",
+  "category": "Cash Flow",
+  "shareable": true,
+  "savable": true,
+  "icon": "🧭",
+  "quiz": {
+    "question": "Which envelope should be the hardest to access to prevent impulsive spending?",
+    "options": ["Essentials", "Future You", "Generosity", "Wants"],
+    "correctIndex": 1
+  },
+  "quotes": [
+    "Visibility creates accountability.",
+    "Your future deserves a deliberate allocation today."
+  ]
+},
+{
+  "id": "tip14",
+  "title": "Meal Planning on ETB 1,200: Stretch Food Without Stress",
+  "summary": "Plan meals weekly to cut food costs, reduce waste, and protect savings.",
+  "details": "Food is often the largest flexible expense for students. Without a plan, daily buys dilute your budget. Meal planning turns intention into savings. Set a weekly budget (e.g., ETB 300) and design five simple meals you can rotate—injera with shiro or lentils, pasta with vegetables, rice bowls, and a soup. Buy staples in bulk where possible and split with housemates. Prep once or twice weekly; portion and store. Track per-meal costs to reveal savings opportunities (e.g., cooking oil and spices are cheaper in larger sizes). Add a snack plan to avoid impulse buys between classes. Allocate a modest social meal on weekends to keep morale. When prices rise, adjust recipes rather than raiding savings—swap proteins, use seasonal produce, and prioritize nutrient density. Align with SDG 1: regular, affordable meals reduce stress and improve academic focus. Equip your kitchen with a few essentials (pan, pot, storage). Use a shared calendar for group kitchens. After two weeks, evaluate: if you overspent, trim one snack and add one bulk purchase. The goal is not culinary perfection; it is budget clarity and consistent nourishment.",
+  "category": "Spending Smarts",
+  "shareable": true,
+  "savable": true,
+  "icon": "🥣",
+  "quiz": {
+    "question": "What is the core strategy of meal planning to reduce food costs?",
+    "options": [
+      "Buying random items daily",
+      "Cooking in bulk and rotating simple meals",
+      "Skipping meals regularly",
+      "Eating out more often"
+    ],
+    "correctIndex": 1
+  },
+  "quotes": [
+    "Plan your plate, protect your pocket.",
+    "Consistency in meals builds consistency in savings."
+  ]
+},
+{
+  "id": "tip15",
+  "title": "Emergency Fund Starter: 30-Day Micro-Saving",
+  "summary": "Build an emergency fund with small daily deposits and a visible streak.",
+  "details": "An emergency fund is your first defense against financial shocks. For students, unexpected costs like a broken phone, sudden travel, or medical needs can derail an entire month’s budget. The 30-Day Micro-Saving Challenge is designed to help you build this safety net with small, consistent actions. The principle is simple: commit to saving ETB 10–20 every single day for 30 days. At first, this amount feels almost invisible, but the psychology of consistency is powerful. By the end of the month, you will have ETB 300–600 set aside — enough to cover a small emergency without borrowing. The key is visibility. Use a jar, envelope, or mobile wallet and track your streak on a calendar. Each day you deposit, mark it with a check or sticker. This visual reinforcement builds momentum. If you miss a day, don’t quit — simply double the deposit the next day to stay on track. Tie the habit to an existing routine, like after morning class or before bed, so it becomes automatic. Define a purpose for your fund: medical needs, laptop repair, or travel. Having a clear goal strengthens your motivation. After 30 days, evaluate: what worked, what was hard, and how can you improve? Then roll into another cycle, perhaps increasing the daily amount slightly. Over time, this micro-savings habit compounds into a real emergency buffer. Align with SDG 1 (No Poverty): even modest emergency funds reduce vulnerability and stress, allowing you to focus on studies. Remember, the goal is not the amount but the habit. By proving to yourself that you can save daily, you build the identity of someone who is financially resilient. Celebrate milestones — when you hit ETB 500, treat yourself modestly, then keep going. Share your progress with a friend or group for accountability. In the long run, this small daily ritual can be the difference between financial panic and financial peace.",
+  "category": "Saving Habits",
+  "shareable": true,
+  "savable": true,
+  "icon": "🛡️",
+  "isDaily": true,
+  "quiz": {
+    "question": "If you miss a day during the 30-day micro-saving challenge, what should you do?",
+    "options": [
+      "Quit the challenge",
+      "Wait until next month",
+      "Double the deposit the next day to keep momentum",
+      "Borrow money to compensate"
+    ],
+    "correctIndex": 2
+  },
+  "quotes": [
+    "Protect your future with small steps today.",
+    "Momentum beats perfection."
+  ]
+}
 ]
