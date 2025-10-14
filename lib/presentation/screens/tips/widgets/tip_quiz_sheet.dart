@@ -86,12 +86,12 @@ class _TipQuizSheetState extends State<TipQuizSheet> {
                               children: [
                                 _isCorrect
                                     ? Lottie.asset(
-                                        'assets/animations/success.json',
+                                        'assets/lottie/Success.json',
                                         repeat: false,
                                         height: 120,
                                       )
                                     : Lottie.asset(
-                                        'assets/animations/error.json',
+                                        'assets/lottie/wrong.json',
                                         repeat: false,
                                         height: 120,
                                       ),

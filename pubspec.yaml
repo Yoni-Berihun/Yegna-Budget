@@ -36,4 +36,7 @@ flutter:
     - assets/images/buffer_tip.png
     - assets/images/spending_chart.png
     - assets/images/monthly_review.png
+    - assets/lottie/Success.json
+    - assets/lottie/wrong.json
+
    
