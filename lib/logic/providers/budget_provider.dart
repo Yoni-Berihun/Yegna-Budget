@@ -1,59 +1,35 @@
+// lib/logic/providers/budget_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../data/models/expense.dart';
 
-final budgetProvider = NotifierProvider<BudgetNotifier, BudgetState>(
-  BudgetNotifier.new,
-);
+class Expense {
+  final String id;
+  final double amount;
+  final String category;
+  final String reason;
+  final DateTime date;
 
-class BudgetNotifier extends Notifier<BudgetState> {
-  @override
-  BudgetState build() {
-    return BudgetState(
-      totalBudget: 7000,
-      spentAmount: 0,
-      showRemaining: false,
-      expenses: [], // 👈 Initialize empty list
-    );
-  }
+  Expense({
+    required this.id,
+    required this.amount,
+    required this.category,
+    required this.reason,
+    required this.date,
+  });
 
-  void addExpense({required double amount, required String category}) {
-    final newExpense = Expense(category: category, amount: amount);
-    final updatedExpenses = [...state.expenses, newExpense];
+  Expense.fromJson(Map<String, dynamic> json)
+    : id = json['id'] as String,
+      amount = (json['amount'] as num).toDouble(),
+      category = json['category'] as String,
+      reason = json['reason'] as String,
+      date = DateTime.parse(json['date'] as String);
 
-    state = state.copyWith(
-      spentAmount: state.spentAmount + amount,
-      expenses: updatedExpenses,
-    );
-  }
-
-  /// 👇 Renamed to match your UI call
-  void toggleShowRemaining() {
-    state = state.copyWith(showRemaining: !state.showRemaining);
-  }
-
-  void updateBudget(double newBudget) {
-    final sanitized = newBudget.isNaN || newBudget <= 0
-        ? state.totalBudget
-        : newBudget;
-    state = state.copyWith(totalBudget: sanitized);
-  }
-
-  String? get topCategory {
-    if (state.expenses.isEmpty) return null;
-
-    final categoryTotals = <String, double>{};
-    for (final expense in state.expenses) {
-      categoryTotals.update(
-        expense.category,
-        (value) => value + expense.amount,
-        ifAbsent: () => expense.amount,
-      );
-    }
-
-    return categoryTotals.entries
-        .reduce((a, b) => a.value >= b.value ? a : b)
-        .key;
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'amount': amount,
+    'category': category,
+    'reason': reason,
+    'date': date.toIso8601String(),
+  };
 }
 
 class BudgetState {
@@ -82,4 +58,91 @@ class BudgetState {
       expenses: expenses ?? this.expenses,
     );
   }
+
+  double get remaining => totalBudget - spentAmount;
+  double get progress =>
+      totalBudget > 0 ? (spentAmount / totalBudget).clamp(0.0, 1.0) : 0.0;
+  double get savingsRate =>
+      totalBudget > 0 ? (remaining / totalBudget * 100).clamp(0, 100) : 0;
 }
+
+class BudgetNotifier extends Notifier<BudgetState> {
+  @override
+  BudgetState build() {
+    return BudgetState(
+      totalBudget: 7000,
+      spentAmount: 0,
+      showRemaining: false,
+      expenses: [],
+    );
+  }
+
+  void addExpense({
+    required double amount,
+    required String category,
+    required String reason,
+  }) {
+    final newExpense = Expense(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      amount: amount,
+      category: category,
+      reason: reason,
+      date: DateTime.now(),
+    );
+    final updatedExpenses = [...state.expenses, newExpense];
+    final updatedSpent = state.spentAmount + amount;
+
+    state = state.copyWith(
+      spentAmount: updatedSpent,
+      expenses: updatedExpenses,
+    );
+  }
+
+  void toggleShowRemaining() {
+    state = state.copyWith(showRemaining: !state.showRemaining);
+  }
+
+  void updateBudget(double newBudget) {
+    final sanitized = newBudget.isNaN || newBudget <= 0
+        ? state.totalBudget
+        : newBudget;
+    state = state.copyWith(totalBudget: sanitized);
+  }
+
+  void deleteExpense(String id) {
+    final expense = state.expenses.firstWhere((e) => e.id == id);
+    final updatedExpenses = state.expenses.where((e) => e.id != id).toList();
+    final updatedSpent = state.spentAmount - expense.amount;
+
+    state = state.copyWith(
+      spentAmount: updatedSpent.clamp(0, double.infinity),
+      expenses: updatedExpenses,
+    );
+  }
+
+  String? get topCategory {
+    if (state.expenses.isEmpty) return null;
+    final grouped = <String, double>{};
+    for (var e in state.expenses) {
+      grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
+    }
+    return grouped.entries.reduce((a, b) => a.value > b.value ? a : b).key;
+  }
+
+  Map<String, double> get categoryBreakdown {
+    final grouped = <String, double>{};
+    for (var e in state.expenses) {
+      grouped[e.category] = (grouped[e.category] ?? 0) + e.amount;
+    }
+    return grouped;
+  }
+
+  double getAverageExpense() {
+    if (state.expenses.isEmpty) return 0;
+    return state.spentAmount / state.expenses.length;
+  }
+}
+
+final budgetProvider = NotifierProvider<BudgetNotifier, BudgetState>(
+  BudgetNotifier.new,
+);

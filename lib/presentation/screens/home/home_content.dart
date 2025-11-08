@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:abushakir/abushakir.dart';
-import 'package:yegna_budget/presentation/widgets/tips_and_challenge_card.dart';
 import '../../../logic/providers/user_provider.dart';
 import '../../../logic/providers/budget_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
@@ -50,9 +49,8 @@ class _HomeContentState extends ConsumerState<HomeContent> {
     final name = ref.watch(userNameProvider);
     final displayName = name.isEmpty ? 'User' : name;
     final budget = ref.watch(budgetProvider);
-    final progress = budget.spentAmount / budget.totalBudget;
-    final percentage = (progress * 100).toStringAsFixed(0);
-    final remaining = budget.totalBudget - budget.spentAmount;
+    final progress = budget.progress;
+    final remaining = budget.remaining;
     final themeMode = ref.watch(themeModeProvider);
     final isDark = themeMode == ThemeMode.dark;
 
@@ -92,9 +90,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                       onChanged: (val) {},
                     ),
                     IconButton(
-                      icon: Icon(
-                        isDark ? Icons.light_mode : Icons.dark_mode,
-                      ),
+                      icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
                       onPressed: () {
                         ref.read(themeModeProvider.notifier).toggleTheme();
                       },
@@ -128,106 +124,245 @@ class _HomeContentState extends ConsumerState<HomeContent> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+              // Animated Budget Card
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: progress),
+                duration: const Duration(milliseconds: 1000),
+                curve: Curves.easeOutCubic,
+                builder: (context, animatedProgress, child) {
+                  return Card(
+                    elevation: 8,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.1),
+                            Theme.of(
+                              context,
+                            ).colorScheme.secondary.withOpacity(0.05),
+                          ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Column(
+                          children: [
+                            Row(
                               children: [
-                                CircularPercentIndicator(
-                                  radius: 60,
-                                  lineWidth: 10,
-                                  percent: progress.clamp(0.0, 1.0),
-                                  center: Text('$percentage%'),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      TweenAnimationBuilder<double>(
+                                        tween: Tween(
+                                          begin: 0.0,
+                                          end: animatedProgress,
+                                        ),
+                                        duration: const Duration(
+                                          milliseconds: 800,
+                                        ),
+                                        curve: Curves.easeOutBack,
+                                        builder: (context, value, child) {
+                                          return CircularPercentIndicator(
+                                            radius: 70,
+                                            lineWidth: 12,
+                                            percent: value.clamp(0.0, 1.0),
+                                            center: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  '${(value * 100).toStringAsFixed(0)}%',
+                                                  style: TextStyle(
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(
+                                                      context,
+                                                    ).colorScheme.primary,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'Used',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.grey[600],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            progressColor:
+                                                animatedProgress > 0.8
+                                                ? Colors.red
+                                                : animatedProgress > 0.5
+                                                ? Colors.orange
+                                                : Colors.green,
+                                            backgroundColor: Colors.grey[200]!,
+                                            animation: true,
+                                            animateFromLastPercent: true,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Total Budget',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${budget.totalBudget.toStringAsFixed(0)} ETB',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        'Spent',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      TweenAnimationBuilder<double>(
+                                        tween: Tween(
+                                          begin: 0.0,
+                                          end: budget.spentAmount,
+                                        ),
+                                        duration: const Duration(
+                                          milliseconds: 800,
+                                        ),
+                                        curve: Curves.easeOut,
+                                        builder: (context, value, child) {
+                                          return Text(
+                                            '${value.toStringAsFixed(0)} ETB',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red[400],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 16),
+                                      const Text(
+                                        'Remaining',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          TweenAnimationBuilder<double>(
+                                            tween: Tween(
+                                              begin: 0.0,
+                                              end: remaining,
+                                            ),
+                                            duration: const Duration(
+                                              milliseconds: 800,
+                                            ),
+                                            curve: Curves.easeOut,
+                                            builder: (context, value, child) {
+                                              return Text(
+                                                budget.showRemaining
+                                                    ? '${value.toStringAsFixed(0)} ETB'
+                                                    : '******',
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.green[600],
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              budget.showRemaining
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off,
+                                              size: 20,
+                                            ),
+                                            onPressed: () {
+                                              ref
+                                                  .read(budgetProvider.notifier)
+                                                  .toggleShowRemaining();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Remaining',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.vertical(
+                                      top: Radius.circular(20),
+                                    ),
                                   ),
+                                  builder: (context) => const EditBudgetSheet(),
+                                );
+                              },
+                              icon: const Icon(Icons.edit),
+                              label: const Text('Edit Budget'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
                                 ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      budget.showRemaining
-                                          ? '${remaining.toStringAsFixed(2)} ETB'
-                                          : '******',
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    IconButton(
-                                      icon: Icon(
-                                        budget.showRemaining
-                                            ? Icons.visibility
-                                            : Icons.visibility_off,
-                                        size: 20,
-                                      ),
-                                      onPressed: () {
-                                        ref
-                                            .read(budgetProvider.notifier)
-                                            .toggleShowRemaining();
-                                      },
-                                    ),
-                                  ],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              'Auto deducted from expenses',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      const SizedBox(height: 16),
-                      Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(16),
-                                  ),
-                                ),
-                                builder: (context) {
-                                  // 👇 Keep your existing EditBudgetSheet implementation
-                                  return const EditBudgetSheet();
-                                },
-                              );
-                            },
-                            child: const Text('Edit Budget'),
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Auto deducted from recent expenses',
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: 24),
               const Text(
@@ -247,40 +382,46 @@ class _HomeContentState extends ConsumerState<HomeContent> {
           ),
         ),
         floatingActionButton: GestureDetector(
-  onTap: () {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const AddExpenseSheet(),
-    );
-  },
-  child: AnimatedContainer(
-    duration: const Duration(milliseconds: 500),
-    curve: Curves.easeInOut,
-    height: 64,
-    width: 64,
-    decoration: BoxDecoration(
-      shape: BoxShape.circle,
-      gradient: const LinearGradient(
-        colors: [Colors.orange, Colors.red],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.orange.withOpacity(0.6),
-          blurRadius: 12,
-          spreadRadius: 2,
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                ),
+                child: const AddExpenseSheet(),
+              ),
+            );
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+            height: 64,
+            width: 64,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                colors: [Colors.orange, Colors.red],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.orange.withOpacity(0.6),
+                  blurRadius: 12,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Icon(Icons.add, color: Colors.white, size: 32),
+            ),
+          ),
         ),
-      ],
-    ),
-    child: const Center(
-      child: Icon(Icons.add, color: Colors.white, size: 32),
-    ),
-  ),
-),
-floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
     );
   }

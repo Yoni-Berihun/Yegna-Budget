@@ -10,61 +10,274 @@ class AnalysisCard extends ConsumerWidget {
     final budget = ref.watch(budgetProvider);
     final notifier = ref.read(budgetProvider.notifier);
 
-    final remaining = budget.totalBudget - budget.spentAmount;
-    final savingsRate = (remaining / budget.totalBudget * 100).clamp(0, 100).toStringAsFixed(1);
-    final averageExpense = (budget.expenses.isNotEmpty
-        ? budget.spentAmount / budget.expenses.length
-        : 0).toStringAsFixed(2);
+    final remaining = budget.remaining;
+    final savingsRate = budget.savingsRate;
+    final averageExpense = notifier.getAverageExpense();
     final topCategory = notifier.topCategory ?? 'N/A';
+    final categoryBreakdown = notifier.categoryBreakdown;
 
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            // Left Column
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Colors.blue.shade50, Colors.purple.shade50],
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  _buildStat('Total Budget', '${budget.totalBudget.toStringAsFixed(2)} ETB'),
-                  _buildStat('Spent', '${budget.spentAmount.toStringAsFixed(2)} ETB'),
-                  _buildStat('Remaining', '${remaining.toStringAsFixed(2)} ETB'),
+                  Icon(
+                    Icons.analytics,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Budget Analysis',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(width: 16),
-            // Right Column
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 16),
+              Row(
                 children: [
-                  _buildStat('Top Category', topCategory),
-                  _buildStat('Avg Expense', '$averageExpense ETB'),
-                  _buildStat('Savings Rate', '$savingsRate%'),
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Total Budget',
+                      '${budget.totalBudget.toStringAsFixed(0)} ETB',
+                      Icons.account_balance_wallet,
+                      Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Spent',
+                      '${budget.spentAmount.toStringAsFixed(0)} ETB',
+                      Icons.trending_down,
+                      Colors.red,
+                    ),
+                  ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Remaining',
+                      '${remaining.toStringAsFixed(0)} ETB',
+                      Icons.savings,
+                      Colors.green,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Savings Rate',
+                      '${savingsRate.toStringAsFixed(1)}%',
+                      Icons.trending_up,
+                      Colors.orange,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Top Category',
+                      topCategory,
+                      Icons.category,
+                      Colors.purple,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildAnimatedStat(
+                      context,
+                      'Avg Expense',
+                      '${averageExpense.toStringAsFixed(0)} ETB',
+                      Icons.receipt,
+                      Colors.teal,
+                    ),
+                  ),
+                ],
+              ),
+              if (categoryBreakdown.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                const Divider(),
+                const SizedBox(height: 12),
+                Text(
+                  'Category Breakdown',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[700],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...categoryBreakdown.entries.map((entry) {
+                  final percentage = (entry.value / budget.spentAmount * 100);
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '${entry.value.toStringAsFixed(0)} ETB (${percentage.toStringAsFixed(1)}%)',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        TweenAnimationBuilder<double>(
+                          tween: Tween(begin: 0.0, end: percentage / 100),
+                          duration: const Duration(milliseconds: 800),
+                          curve: Curves.easeOut,
+                          builder: (context, value, child) {
+                            return LinearProgressIndicator(
+                              value: value,
+                              backgroundColor: Colors.grey[200],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                _getCategoryColor(entry.key),
+                              ),
+                              minHeight: 6,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildStat(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+  Widget _buildAnimatedStat(
+    BuildContext context,
+    String label,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.7),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          TweenAnimationBuilder<double>(
+            tween: Tween(
+              begin: 0.0,
+              end:
+                  double.tryParse(value.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                  0.0,
+            ),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOut,
+            builder: (context, animatedValue, child) {
+              if (value.contains('ETB')) {
+                return Text(
+                  '${animatedValue.toStringAsFixed(0)} ETB',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                );
+              } else if (value.contains('%')) {
+                return Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                );
+              } else {
+                return Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                );
+              }
+            },
+          ),
         ],
       ),
     );
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Colors.orange;
+      case 'transport':
+        return Colors.blue;
+      case 'rent':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }
