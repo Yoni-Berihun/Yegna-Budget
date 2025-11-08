@@ -11,6 +11,7 @@ class SplitterScreen extends ConsumerStatefulWidget {
 
 class _SplitterScreenState extends ConsumerState<SplitterScreen>
     with SingleTickerProviderStateMixin {
+  final TextEditingController _amountController = TextEditingController();
   double _amount = 0.0;
   int _numberOfPeople = 1;
   double _eachPersonPays = 0.0;
@@ -33,8 +34,17 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
 
   @override
   void dispose() {
+    _amountController.dispose();
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _onAmountChanged(String value) {
+    final amount = double.tryParse(value) ?? 0.0;
+    setState(() {
+      _amount = amount;
+    });
+    _updateCalculation();
   }
 
   void _updateCalculation() {
@@ -110,18 +120,23 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
                       color: Colors.purple[600],
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Split your expenses',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    const Center(
+                      child: Text(
+                        'Split your expenses',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Divide the bill equally among friends',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                      textAlign: TextAlign.center,
+                    Center(
+                      child: Text(
+                        'Divide the bill equally among friends',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
                 ),
@@ -129,7 +144,7 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
             ),
             const SizedBox(height: 32),
 
-            // Amount Slider
+            // Amount Input
             _buildSectionTitle('Total Amount (ETB)'),
             const SizedBox(height: 16),
             Card(
@@ -141,47 +156,25 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: _amount),
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeOut,
-                      builder: (context, value, child) {
-                        return Text(
-                          '${value.toStringAsFixed(0)} ETB',
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.purple[600],
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: Colors.purple,
-                        inactiveTrackColor: Colors.purple[100],
-                        thumbColor: Colors.purple,
-                        overlayColor: Colors.purple.withOpacity(0.2),
-                        thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 12,
+                    TextField(
+                      controller: _amountController,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Total Amount',
+                        prefixIcon: const Icon(Icons.attach_money),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        trackHeight: 6,
+                        filled: true,
+                        fillColor: Theme.of(context).cardColor,
                       ),
-                      child: Slider(
-                        value: _amount.clamp(0.0, 10000.0),
-                        min: 0,
-                        max: 10000,
-                        divisions: 200,
-                        label: '${_amount.toStringAsFixed(0)} ETB',
-                        onChanged: (value) {
-                          setState(() {
-                            _amount = value;
-                          });
-                          _updateCalculation();
-                        },
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
+                      onChanged: _onAmountChanged,
                     ),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -373,6 +366,7 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
       onPressed: () {
         setState(() {
           _amount = amount;
+          _amountController.text = amount.toStringAsFixed(0);
         });
         _updateCalculation();
       },
@@ -428,6 +422,24 @@ class _SplitExpenseSheetState extends ConsumerState<_SplitExpenseSheet> {
   final TextEditingController _descriptionController = TextEditingController();
   String _category = 'Food';
   String _reasonType = 'Social';
+
+  final List<String> _categories = [
+    'Food',
+    'Transport',
+    'Books and Supplies',
+    'Entertainment',
+    'Health and Medical',
+    'Clothing',
+    'Other',
+  ];
+
+  final List<String> _reasonTypes = [
+    'Necessity',
+    'Impulse',
+    'Planned',
+    'Emergency',
+    'Social',
+  ];
 
   @override
   void dispose() {
@@ -497,48 +509,99 @@ class _SplitExpenseSheetState extends ConsumerState<_SplitExpenseSheet> {
               ),
             ),
             const SizedBox(height: 24),
-            // Use the same fields as AddExpenseSheet but simplified
+            // Category
             DropdownButtonFormField<String>(
               value: _category,
-              items: const [
-                DropdownMenuItem(value: 'Food', child: Text('Food')),
-                DropdownMenuItem(value: 'Transport', child: Text('Transport')),
-                DropdownMenuItem(
-                  value: 'Entertainment',
-                  child: Text('Entertainment'),
-                ),
-                DropdownMenuItem(value: 'Other', child: Text('Other')),
-              ],
+              items: _categories.map((category) {
+                return DropdownMenuItem(
+                  value: category,
+                  child: Row(
+                    children: [
+                      Icon(
+                        _getCategoryIcon(category),
+                        color: _getCategoryColor(category),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(category),
+                    ],
+                  ),
+                );
+              }).toList(),
               onChanged: (val) => setState(() => _category = val ?? 'Food'),
               decoration: InputDecoration(
                 labelText: 'Category',
+                prefixIcon: const Icon(Icons.category),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
               ),
             ),
             const SizedBox(height: 16),
+            // Reason Type
+            DropdownButtonFormField<String>(
+              value: _reasonType,
+              items: _reasonTypes.map((type) {
+                return DropdownMenuItem(
+                  value: type,
+                  child: Row(
+                    children: [
+                      Icon(
+                        _getReasonTypeIcon(type),
+                        color: _getReasonTypeColor(type),
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(type),
+                    ],
+                  ),
+                );
+              }).toList(),
+              onChanged: (val) => setState(() => _reasonType = val ?? 'Social'),
+              decoration: InputDecoration(
+                labelText: 'Reason Type',
+                hintText: 'Why did you spend?',
+                prefixIcon: const Icon(Icons.help_outline),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
+              ),
+            ),
+            const SizedBox(height: 16),
+            // Reason
             TextField(
               controller: _reasonController,
               decoration: InputDecoration(
                 labelText: 'Reason',
                 hintText: 'Why did you spend?',
+                prefixIcon: const Icon(Icons.description),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
               ),
+              maxLines: 2,
             ),
             const SizedBox(height: 16),
+            // Description
             TextField(
               controller: _descriptionController,
               decoration: InputDecoration(
                 labelText: 'Description (Optional)',
-                hintText: 'Add details...',
+                hintText: 'Add details about this expense...',
+                prefixIcon: const Icon(Icons.note),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                filled: true,
+                fillColor: Theme.of(context).cardColor,
               ),
-              maxLines: 2,
+              maxLines: 3,
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -592,5 +655,77 @@ class _SplitExpenseSheetState extends ConsumerState<_SplitExpenseSheet> {
         ),
       ),
     );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Food':
+        return Icons.restaurant;
+      case 'Transport':
+        return Icons.directions_car;
+      case 'Books and Supplies':
+        return Icons.book;
+      case 'Entertainment':
+        return Icons.movie;
+      case 'Health and Medical':
+        return Icons.medical_services;
+      case 'Clothing':
+        return Icons.checkroom;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Food':
+        return Colors.orange;
+      case 'Transport':
+        return Colors.blue;
+      case 'Books and Supplies':
+        return Colors.purple;
+      case 'Entertainment':
+        return Colors.pink;
+      case 'Health and Medical':
+        return Colors.red;
+      case 'Clothing':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getReasonTypeIcon(String type) {
+    switch (type) {
+      case 'Necessity':
+        return Icons.check_circle;
+      case 'Impulse':
+        return Icons.flash_on;
+      case 'Planned':
+        return Icons.event_note;
+      case 'Emergency':
+        return Icons.warning;
+      case 'Social':
+        return Icons.people;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  Color _getReasonTypeColor(String type) {
+    switch (type) {
+      case 'Necessity':
+        return Colors.green;
+      case 'Impulse':
+        return Colors.orange;
+      case 'Planned':
+        return Colors.blue;
+      case 'Emergency':
+        return Colors.red;
+      case 'Social':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }

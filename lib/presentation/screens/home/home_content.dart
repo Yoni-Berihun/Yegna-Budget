@@ -239,12 +239,15 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                         ),
                                         curve: Curves.easeOut,
                                         builder: (context, value, child) {
-                                          return Text(
-                                            '${value.toStringAsFixed(0)} ETB',
-                                            style: TextStyle(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.red[500],
+                                          return FittedBox(
+                                            fit: BoxFit.scaleDown,
+                                            child: Text(
+                                              '${value.toStringAsFixed(0)} ETB',
+                                              style: TextStyle(
+                                                fontSize: 24,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.red[500],
+                                              ),
                                             ),
                                           );
                                         },
@@ -262,30 +265,35 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          TweenAnimationBuilder<double>(
-                                            tween: Tween(
-                                              begin: 0.0,
-                                              end: remaining,
+                                          Flexible(
+                                            child: TweenAnimationBuilder<double>(
+                                              tween: Tween(
+                                                begin: 0.0,
+                                                end: remaining,
+                                              ),
+                                              duration: const Duration(
+                                                milliseconds: 800,
+                                              ),
+                                              curve: Curves.easeOut,
+                                              builder: (context, value, child) {
+                                                return FittedBox(
+                                                  fit: BoxFit.scaleDown,
+                                                  child: Text(
+                                                    budget.showRemaining
+                                                        ? '${value.toStringAsFixed(0)} ETB'
+                                                        : '******',
+                                                    style: TextStyle(
+                                                      fontSize: 24,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.green[600],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
                                             ),
-                                            duration: const Duration(
-                                              milliseconds: 800,
-                                            ),
-                                            curve: Curves.easeOut,
-                                            builder: (context, value, child) {
-                                              return Text(
-                                                budget.showRemaining
-                                                    ? '${value.toStringAsFixed(0)} ETB'
-                                                    : '******',
-                                                style: TextStyle(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.green[600],
-                                                ),
-                                              );
-                                            },
                                           ),
-                                          const SizedBox(width: 4),
                                           IconButton(
                                             icon: Icon(
                                               budget.showRemaining
@@ -293,6 +301,8 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                                   : Icons.visibility_off,
                                               size: 20,
                                             ),
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
                                             onPressed: () {
                                               ref
                                                   .read(budgetProvider.notifier)

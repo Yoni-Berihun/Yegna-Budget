@@ -25,7 +25,7 @@ class HomeScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.lightBlue[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: const Color(0xFF973C00),
         type: BottomNavigationBarType.fixed,

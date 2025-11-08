@@ -8,8 +8,8 @@ import 'presentation/screens/welcome/welcome_screen.dart';
 import 'presentation/screens/home/home_screen.dart';
 import 'logic/providers/user_provider.dart';
 import 'logic/providers/theme_provider.dart';
+import 'logic/providers/budget_provider.dart';
 import 'core/theme/app_theme.dart';
-
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +17,7 @@ Future<void> main() async {
   final appDocDir = await getApplicationDocumentsDirectory();
   await Hive.initFlutter(appDocDir.path);
   await Hive.openBox('feedbackBox');
+  await Hive.openBox('budgetBox'); // Initialize budget storage
 
   final bool firstTime = await PrefsService.isFirstTime();
   final String? savedName = await PrefsService.loadUserName();
@@ -45,11 +46,17 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialUserName != null && widget.initialUserName!.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(userNameProvider.notifier).setUserName(widget.initialUserName!);
-      });
-    }
+    // Initialize budget and user name
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.initialUserName != null &&
+          widget.initialUserName!.isNotEmpty) {
+        ref
+            .read(userNameProvider.notifier)
+            .setUserName(widget.initialUserName!);
+      }
+      // Initialize budget from storage
+      ref.read(budgetProvider.notifier).initialize();
+    });
   }
 
   @override

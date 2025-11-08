@@ -73,77 +73,84 @@ class AnalysisScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // Progress Indicator
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
+            // Progress Indicator - Centered
+            Center(
+              child: Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        Theme.of(
+                          context,
+                        ).colorScheme.secondary.withOpacity(0.05),
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Budget Usage',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.0, end: budget.progress),
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeOutCubic,
+                        builder: (context, value, child) {
+                          return CircularPercentIndicator(
+                            radius: 100,
+                            lineWidth: 20,
+                            percent: value.clamp(0.0, 1.0),
+                            center: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  '${(value * 100).toStringAsFixed(0)}%',
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                  ),
+                                ),
+                                Text(
+                                  'Used',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            progressColor: value > 0.8
+                                ? Colors.red
+                                : value > 0.5
+                                ? Colors.orange
+                                : Colors.green,
+                            backgroundColor: Colors.grey[200]!,
+                            animation: true,
+                            animateFromLastPercent: true,
+                          );
+                        },
+                      ),
                     ],
                   ),
-                ),
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Text(
-                      'Budget Usage',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TweenAnimationBuilder<double>(
-                      tween: Tween(begin: 0.0, end: budget.progress),
-                      duration: const Duration(milliseconds: 1000),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, value, child) {
-                        return CircularPercentIndicator(
-                          radius: 100,
-                          lineWidth: 20,
-                          percent: value.clamp(0.0, 1.0),
-                          center: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                '${(value * 100).toStringAsFixed(0)}%',
-                                style: TextStyle(
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              Text(
-                                'Used',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                          progressColor: value > 0.8
-                              ? Colors.red
-                              : value > 0.5
-                              ? Colors.orange
-                              : Colors.green,
-                          backgroundColor: Colors.grey[200]!,
-                          animation: true,
-                          animateFromLastPercent: true,
-                        );
-                      },
-                    ),
-                  ],
                 ),
               ),
             ),

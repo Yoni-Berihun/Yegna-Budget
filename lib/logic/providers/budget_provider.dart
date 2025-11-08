@@ -1,5 +1,6 @@
 // lib/logic/providers/budget_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../services/budget_storage_service.dart';
 
 class Expense {
   final String id;
@@ -81,12 +82,36 @@ class BudgetState {
 class BudgetNotifier extends Notifier<BudgetState> {
   @override
   BudgetState build() {
+    // Load budget asynchronously after first build
+    Future.microtask(() => _loadBudget());
     return BudgetState(
       totalBudget: 7000,
       spentAmount: 0,
       showRemaining: false,
       expenses: [],
     );
+  }
+
+  Future<void> _loadBudget() async {
+    try {
+      final savedBudget = await BudgetStorageService.loadBudget();
+      if (savedBudget != null) {
+        state = savedBudget;
+      }
+    } catch (e) {
+      // If loading fails, use default state
+      print('Error loading budget: $e');
+    }
+  }
+
+  // Public method to initialize budget from storage
+  Future<void> initialize() async {
+    await _loadBudget();
+  }
+
+  Future<void> _saveBudget() async {
+    await BudgetStorageService.saveBudget(state);
+    await BudgetStorageService.saveExpenses(state.expenses);
   }
 
   void addExpense({
@@ -114,10 +139,12 @@ class BudgetNotifier extends Notifier<BudgetState> {
       spentAmount: updatedSpent,
       expenses: updatedExpenses,
     );
+    _saveBudget();
   }
 
   void toggleShowRemaining() {
     state = state.copyWith(showRemaining: !state.showRemaining);
+    _saveBudget();
   }
 
   void updateBudget(double newBudget) {
@@ -125,6 +152,7 @@ class BudgetNotifier extends Notifier<BudgetState> {
         ? state.totalBudget
         : newBudget;
     state = state.copyWith(totalBudget: sanitized);
+    _saveBudget();
   }
 
   void deleteExpense(String id) {
@@ -136,6 +164,7 @@ class BudgetNotifier extends Notifier<BudgetState> {
       spentAmount: updatedSpent.clamp(0, double.infinity),
       expenses: updatedExpenses,
     );
+    _saveBudget();
   }
 
   String? get topCategory {
