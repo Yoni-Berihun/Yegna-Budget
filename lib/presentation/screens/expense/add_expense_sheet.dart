@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../../../logic/providers/budget_provider.dart';
 
 class AddExpenseSheet extends ConsumerStatefulWidget {
@@ -12,13 +14,81 @@ class AddExpenseSheet extends ConsumerStatefulWidget {
 class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+
   String _category = 'Food';
+  String _reasonType = 'Necessity';
+  XFile? _receiptImage;
+
+  final List<String> _categories = [
+    'Food',
+    'Transport',
+    'Books and Supplies',
+    'Entertainment',
+    'Health and Medical',
+    'Clothing',
+    'Other',
+  ];
+
+  final List<String> _reasonTypes = [
+    'Necessity',
+    'Impulse',
+    'Planned',
+    'Emergency',
+    'Social',
+  ];
 
   @override
   void dispose() {
     _amountController.dispose();
     _reasonController.dispose();
+    _descriptionController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) {
+        setState(() {
+          _receiptImage = image;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+    }
+  }
+
+  void _showImageSourceDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text('Camera'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text('Gallery'),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -78,7 +148,7 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
               TextField(
                 controller: _amountController,
                 decoration: InputDecoration(
-                  labelText: 'Amount (ETB)',
+                  labelText: 'Amount in ETB',
                   prefixIcon: const Icon(Icons.attach_money),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -97,38 +167,21 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
               // Category
               DropdownButtonFormField<String>(
                 value: _category,
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Food',
+                items: _categories.map((category) {
+                  return DropdownMenuItem(
+                    value: category,
                     child: Row(
                       children: [
-                        Icon(Icons.restaurant, color: Colors.orange),
-                        SizedBox(width: 8),
-                        Text('Food'),
+                        Icon(
+                          _getCategoryIcon(category),
+                          color: _getCategoryColor(category),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(category),
                       ],
                     ),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Transport',
-                    child: Row(
-                      children: [
-                        Icon(Icons.directions_car, color: Colors.blue),
-                        SizedBox(width: 8),
-                        Text('Transport'),
-                      ],
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Rent',
-                    child: Row(
-                      children: [
-                        Icon(Icons.home, color: Colors.purple),
-                        SizedBox(width: 8),
-                        Text('Rent'),
-                      ],
-                    ),
-                  ),
-                ],
+                  );
+                }).toList(),
                 onChanged: (val) => setState(() => _category = val ?? 'Food'),
                 decoration: InputDecoration(
                   labelText: 'Category',
@@ -142,11 +195,45 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
               ),
               const SizedBox(height: 16),
 
+              // Reason Type
+              DropdownButtonFormField<String>(
+                value: _reasonType,
+                items: _reasonTypes.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Row(
+                      children: [
+                        Icon(
+                          _getReasonTypeIcon(type),
+                          color: _getReasonTypeColor(type),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(type),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                onChanged: (val) =>
+                    setState(() => _reasonType = val ?? 'Necessity'),
+                decoration: InputDecoration(
+                  labelText: 'Reason Type',
+                  hintText: 'Why did you spend?',
+                  prefixIcon: const Icon(Icons.help_outline),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
+                ),
+              ),
+              const SizedBox(height: 16),
+
               // Reason
               TextField(
                 controller: _reasonController,
                 decoration: InputDecoration(
-                  labelText: 'Why did you spend?',
+                  labelText: 'Reason',
+                  hintText: 'Why did you spend?',
                   prefixIcon: const Icon(Icons.description),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -156,41 +243,77 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                 ),
                 maxLines: 2,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 16),
 
-              // Tips Card
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blue.shade200),
+              // Description (Optional)
+              TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(
+                  labelText: 'Description (Optional)',
+                  hintText: 'Add details about this expense...',
+                  prefixIcon: const Icon(Icons.note),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Theme.of(context).cardColor,
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.lightbulb, color: Colors.orange, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Expense Tips',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+
+              // Receipt Photo
+              Text(
+                'Receipt Photo (Optional)',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (_receiptImage != null)
+                    Expanded(
+                      child: Container(
+                        height: 100,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey[300]!),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            File(_receiptImage!.path),
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ],
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _showImageSourceDialog,
+                        icon: const Icon(Icons.add_photo_alternate),
+                        label: const Text('Add Receipt'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
                     ),
-                    SizedBox(height: 8),
-                    Text(
-                      '• Be honest and specific\n'
-                      '• Categorize for better tracking\n'
-                      '• Review weekly to spot patterns',
-                      style: TextStyle(fontSize: 12, color: Colors.black87),
+                  if (_receiptImage != null) ...[
+                    const SizedBox(width: 8),
+                    IconButton(
+                      onPressed: () => setState(() => _receiptImage = null),
+                      icon: const Icon(Icons.delete),
+                      color: Colors.red,
                     ),
                   ],
-                ),
+                ],
               ),
               const SizedBox(height: 24),
 
@@ -223,7 +346,13 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                               .addExpense(
                                 amount: amount,
                                 category: _category,
+                                reasonType: _reasonType,
                                 reason: reason,
+                                description:
+                                    _descriptionController.text.trim().isEmpty
+                                    ? null
+                                    : _descriptionController.text.trim(),
+                                receiptPath: _receiptImage?.path,
                               );
 
                           Navigator.pop(context);
@@ -272,7 +401,7 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                         }
                       },
                       icon: const Icon(Icons.save),
-                      label: const Text('Save Expense'),
+                      label: const Text('Add Expense'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
@@ -291,5 +420,77 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
         ),
       ),
     );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Food':
+        return Icons.restaurant;
+      case 'Transport':
+        return Icons.directions_car;
+      case 'Books and Supplies':
+        return Icons.book;
+      case 'Entertainment':
+        return Icons.movie;
+      case 'Health and Medical':
+        return Icons.medical_services;
+      case 'Clothing':
+        return Icons.checkroom;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category) {
+      case 'Food':
+        return Colors.orange;
+      case 'Transport':
+        return Colors.blue;
+      case 'Books and Supplies':
+        return Colors.purple;
+      case 'Entertainment':
+        return Colors.pink;
+      case 'Health and Medical':
+        return Colors.red;
+      case 'Clothing':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getReasonTypeIcon(String type) {
+    switch (type) {
+      case 'Necessity':
+        return Icons.check_circle;
+      case 'Impulse':
+        return Icons.flash_on;
+      case 'Planned':
+        return Icons.event_note;
+      case 'Emergency':
+        return Icons.warning;
+      case 'Social':
+        return Icons.people;
+      default:
+        return Icons.help_outline;
+    }
+  }
+
+  Color _getReasonTypeColor(String type) {
+    switch (type) {
+      case 'Necessity':
+        return Colors.green;
+      case 'Impulse':
+        return Colors.orange;
+      case 'Planned':
+        return Colors.blue;
+      case 'Emergency':
+        return Colors.red;
+      case 'Social':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
   }
 }

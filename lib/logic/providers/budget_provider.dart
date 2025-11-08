@@ -5,14 +5,20 @@ class Expense {
   final String id;
   final double amount;
   final String category;
-  final String reason;
+  final String reasonType; // Necessity, Impulse, Planned, Emergency, Social
+  final String reason; // Why did you spend
+  final String? description; // Optional details
+  final String? receiptPath; // Path to receipt image
   final DateTime date;
 
   Expense({
     required this.id,
     required this.amount,
     required this.category,
+    required this.reasonType,
     required this.reason,
+    this.description,
+    this.receiptPath,
     required this.date,
   });
 
@@ -20,14 +26,20 @@ class Expense {
     : id = json['id'] as String,
       amount = (json['amount'] as num).toDouble(),
       category = json['category'] as String,
+      reasonType = json['reasonType'] as String? ?? 'Necessity',
       reason = json['reason'] as String,
+      description = json['description'] as String?,
+      receiptPath = json['receiptPath'] as String?,
       date = DateTime.parse(json['date'] as String);
 
   Map<String, dynamic> toJson() => {
     'id': id,
     'amount': amount,
     'category': category,
+    'reasonType': reasonType,
     'reason': reason,
+    'description': description,
+    'receiptPath': receiptPath,
     'date': date.toIso8601String(),
   };
 }
@@ -80,13 +92,19 @@ class BudgetNotifier extends Notifier<BudgetState> {
   void addExpense({
     required double amount,
     required String category,
+    required String reasonType,
     required String reason,
+    String? description,
+    String? receiptPath,
   }) {
     final newExpense = Expense(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       amount: amount,
       category: category,
+      reasonType: reasonType,
       reason: reason,
+      description: description,
+      receiptPath: receiptPath,
       date: DateTime.now(),
     );
     final updatedExpenses = [...state.expenses, newExpense];

@@ -428,3 +428,273 @@ class AnalysisScreen extends ConsumerWidget {
     }
   }
 }
+
+// Expandable Expense Card
+class _ExpandableExpenseCard extends StatefulWidget {
+  final dynamic expense; // Expense from BudgetState
+
+  const _ExpandableExpenseCard({required this.expense});
+
+  @override
+  State<_ExpandableExpenseCard> createState() => _ExpandableExpenseCardState();
+}
+
+class _ExpandableExpenseCardState extends State<_ExpandableExpenseCard>
+    with SingleTickerProviderStateMixin {
+  bool _isExpanded = false;
+  late AnimationController _controller;
+  late Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _expandAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _toggleExpanded() {
+    setState(() {
+      _isExpanded = !_isExpanded;
+      if (_isExpanded) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    });
+  }
+
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Colors.orange;
+      case 'transport':
+        return Colors.blue;
+      case 'books and supplies':
+        return Colors.purple;
+      case 'entertainment':
+        return Colors.pink;
+      case 'health and medical':
+        return Colors.red;
+      case 'clothing':
+        return Colors.teal;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Icons.restaurant;
+      case 'transport':
+        return Icons.directions_car;
+      case 'books and supplies':
+        return Icons.book;
+      case 'entertainment':
+        return Icons.movie;
+      case 'health and medical':
+        return Icons.medical_services;
+      case 'clothing':
+        return Icons.checkroom;
+      default:
+        return Icons.category;
+    }
+  }
+
+  Color _getReasonTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'necessity':
+        return Colors.green;
+      case 'impulse':
+        return Colors.orange;
+      case 'planned':
+        return Colors.blue;
+      case 'emergency':
+        return Colors.red;
+      case 'social':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final expense = widget.expense;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      elevation: _isExpanded ? 6 : 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Column(
+        children: [
+          ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: _getCategoryColor(expense.category).withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                _getCategoryIcon(expense.category),
+                color: _getCategoryColor(expense.category),
+              ),
+            ),
+            title: Text(
+              expense.category,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              expense.reason,
+              maxLines: _isExpanded ? null : 1,
+              overflow: _isExpanded ? null : TextOverflow.ellipsis,
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${expense.amount.toStringAsFixed(0)} ETB',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red[600],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
+              ],
+            ),
+            onTap: _toggleExpanded,
+          ),
+          SizeTransition(
+            sizeFactor: _expandAnimation,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (expense.reasonType != null) ...[
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.label,
+                          size: 16,
+                          color: _getReasonTypeColor(expense.reasonType),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Reason Type: ',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getReasonTypeColor(
+                              expense.reasonType,
+                            ).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            expense.reasonType,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: _getReasonTypeColor(expense.reasonType),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (expense.description != null &&
+                      expense.description!.isNotEmpty) ...[
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.description,
+                          size: 16,
+                          color: Colors.grey[600],
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            expense.description!,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16,
+                        color: Colors.grey[600],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Date: ${_formatDate(expense.date)}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                  if (expense.receiptPath != null) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Icon(Icons.receipt, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Receipt attached',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute.toString().padLeft(2, '0')}';
+  }
+}

@@ -213,7 +213,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                     ],
                                   ),
                                 ),
-                                const SizedBox(width: 16),
+                                const SizedBox(width: 24),
                                 Expanded(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -221,32 +221,14 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Total Budget',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        '${budget.totalBudget.toStringAsFixed(0)} ETB',
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.primary,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
                                         'Spent',
                                         style: TextStyle(
                                           fontSize: 14,
                                           color: Colors.grey[600],
+                                          fontWeight: FontWeight.w500,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: 8),
                                       TweenAnimationBuilder<double>(
                                         tween: Tween(
                                           begin: 0.0,
@@ -260,14 +242,14 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                           return Text(
                                             '${value.toStringAsFixed(0)} ETB',
                                             style: TextStyle(
-                                              fontSize: 18,
+                                              fontSize: 24,
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.red[400],
+                                              color: Colors.red[500],
                                             ),
                                           );
                                         },
                                       ),
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 24),
                                       const Text(
                                         'Remaining',
                                         style: TextStyle(
@@ -276,7 +258,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
+                                      const SizedBox(height: 8),
                                       Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
@@ -296,13 +278,14 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                                     ? '${value.toStringAsFixed(0)} ETB'
                                                     : '******',
                                                 style: TextStyle(
-                                                  fontSize: 20,
+                                                  fontSize: 24,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.green[600],
                                                 ),
                                               );
                                             },
                                           ),
+                                          const SizedBox(width: 4),
                                           IconButton(
                                             icon: Icon(
                                               budget.showRemaining
@@ -381,45 +364,23 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             ],
           ),
         ),
-        floatingActionButton: GestureDetector(
+        floatingActionButton: _AnimatedFAB(
           onTap: () {
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
               backgroundColor: Colors.transparent,
               builder: (_) => Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
                 ),
                 child: const AddExpenseSheet(),
               ),
             );
           },
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-            height: 64,
-            width: 64,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                colors: [Colors.orange, Colors.red],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.orange.withOpacity(0.6),
-                  blurRadius: 12,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Icon(Icons.add, color: Colors.white, size: 32),
-            ),
-          ),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
@@ -560,6 +521,112 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Animated Floating Action Button with Pulse Effect
+class _AnimatedFAB extends StatefulWidget {
+  final VoidCallback onTap;
+
+  const _AnimatedFAB({required this.onTap});
+
+  @override
+  State<_AnimatedFAB> createState() => _AnimatedFABState();
+}
+
+class _AnimatedFABState extends State<_AnimatedFAB>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat();
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+
+    _pulseAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Stack(
+            alignment: Alignment.center,
+            children: [
+              // Pulsing shadow effect
+              Transform.scale(
+                scale: 1.0 + (_pulseAnimation.value * 0.3),
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(
+                          0.4 * (1 - _pulseAnimation.value),
+                        ),
+                        blurRadius: 20 + (_pulseAnimation.value * 10),
+                        spreadRadius: 5 + (_pulseAnimation.value * 5),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Main button
+              Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.orange.withOpacity(0.6),
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.add, color: Colors.white, size: 32),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
