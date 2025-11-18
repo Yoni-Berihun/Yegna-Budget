@@ -39,11 +39,13 @@ class FancyBottomNav extends StatelessWidget {
       ),
       child: SafeArea(
         top: false,
+        minimum: EdgeInsets.zero,
         child: Container(
-          height: 65,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          constraints: const BoxConstraints(minHeight: 56, maxHeight: 70),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _buildNavItem(
                 context: context,
@@ -109,37 +111,53 @@ class FancyBottomNav extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeInOut,
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? selectedColor.withOpacity(0.2)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  icon,
-                  color: isSelected ? selectedColor : unselectedColor,
-                  size: 24,
+              Flexible(
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(4),
+                  constraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 32,
+                    maxWidth: 40,
+                    maxHeight: 40,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? selectedColor.withOpacity(0.2)
+                        : Colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: isSelected ? selectedColor : unselectedColor,
+                    size: 20,
+                  ),
                 ),
               ),
-              const SizedBox(height: 4),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
-                style: TextStyle(
-                  fontSize: isSelected ? 12 : 11,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? selectedColor : unselectedColor,
-                ),
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 2),
+              Flexible(
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 200),
+                  style: TextStyle(
+                    fontSize: isSelected ? 10 : 9,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
+                    color: isSelected ? selectedColor : unselectedColor,
+                    height: 1.0,
+                  ),
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ],
