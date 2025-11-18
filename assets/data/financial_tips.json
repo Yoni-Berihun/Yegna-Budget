@@ -5,7 +5,7 @@
     "summary": "Include 10–15% extra in your budget to handle surprises.",
     "details": "Emergencies, price hikes, or spontaneous events can throw off your budget...",
     "imageUrl": "assets/images/buffer_tip.png",
-    "icon": "savings",
+    "icon": "assets/icons/savings.svg",
     "category": "Budgeting",
     "shareable": true,
     "savable": true
@@ -16,7 +16,7 @@
     "summary": "Break down your expenses to see where your money goes.",
     "details": "Use categories like Food, Transport, Rent, and Entertainment...",
     "imageUrl": "assets/images/spending_chart.png",
-    "icon": "pie_chart",
+    "icon": "assets/icons/pie_chart.svg",
     "category": "Tracking",
     "shareable": true,
     "savable": true
@@ -26,7 +26,7 @@
     "title": "Review Your Budget Monthly",
     "summary": "Your budget should evolve with your life.",
     "details": "At the end of each month, reflect on what worked and what didn’t...",
-    "imageUrl": "assets/images/monthly_review.png",
+    "imageUrl": "assets/icons/calender_today.svg",
     "icon": "calendar_today",
     "category": "Planning",
     "shareable": true,
@@ -38,7 +38,7 @@
     "summary": "Define what you're saving for and how much you need.",
     "details": "Whether it's buying a laptop, paying tuition, or saving for a trip...",
     "imageUrl": "assets/images/goal_setting.png",
-    "icon": "flag",
+    "icon": "assets/icons/flag.svg",
     "category": "Goal Setting",
     "shareable": true,
     "savable": true
@@ -49,7 +49,7 @@
     "summary": "Compare prices and avoid impulse buys.",
     "details": "Before buying anything, ask: Do I need this now? Can I find it cheaper?...",
     "imageUrl": null,
-    "icon": "shopping_cart",
+    "icon": "assets/icons/shopping_cart.svg",
     "category": "Shopping",
     "shareable": true,
     "savable": true
@@ -60,7 +60,7 @@
     "summary": "Borrow only when you have a clear repayment plan.",
     "details": "Debt can be useful, but dangerous if unmanaged...",
     "imageUrl": null,
-    "icon": "credit_card",
+    "icon": "assets/icons/credit_card.svg",
     "category": "Debt",
     "shareable": true,
     "savable": true
@@ -71,7 +71,7 @@
     "summary": "Treat savings like a fixed expense.",
     "details": "When money comes in, save first — even if it’s just 100 ETB...",
     "imageUrl": null,
-    "icon": "account_balance_wallet",
+    "icon": "assets/icons/savings.svg",
     "category": "Saving",
     "shareable": true,
     "savable": true
@@ -82,7 +82,7 @@
     "summary": "Maximize free apps, student discounts, and budgeting templates.",
     "details": "You don’t need expensive software to manage money...",
     "imageUrl": null,
-    "icon": "apps",
+    "icon": "assets/icons/apps.svg",
     "category": "Tools",
     "shareable": true,
     "savable": true
@@ -93,7 +93,7 @@
     "summary": "Reward yourself for staying on track.",
     "details": "Budgeting isn’t punishment — it’s empowerment...",
     "imageUrl": null,
-    "icon": "emoji_events",
+    "icon": "assets/icons/emoji_events.svg",
     "category": "Motivation",
     "shareable": true,
     "savable": true
@@ -104,7 +104,7 @@
     "summary": "Budget for cultural and seasonal expenses.",
     "details": "In Ethiopia, holidays like Fasika, Meskel, and New Year come with extra costs...",
     "imageUrl": null,
-    "icon": "event",
+    "icon": "assets/icons/event.svg",
     "category": "Seasonal",
     "shareable": true,
     "savable": true
@@ -117,7 +117,7 @@
   "category": "Social Savings",
   "shareable": true,
   "savable": true,
-  "icon": "☕",
+  "icon": "assets/icons/coffee.svg",
   "isDaily": true,
   "quiz": {
     "question": "What is the main benefit of Group Coffee Economics for students?",
@@ -142,7 +142,7 @@
   "category": "Budgeting Basics",
   "shareable": true,
   "savable": true,
-  "icon": "📊",
+  "icon": "assets/icons/budget.svg",
   "quiz": {
     "question": "In the 50/30/20 rule, what percentage is allocated to savings?",
     "options": ["10%", "20%", "30%", "50%"],
@@ -161,7 +161,7 @@
   "category": "Cash Flow",
   "shareable": true,
   "savable": true,
-  "icon": "🧭",
+  "icon": "assets/icons/envelope.svg",
   "quiz": {
     "question": "Which envelope should be the hardest to access to prevent impulsive spending?",
     "options": ["Essentials", "Future You", "Generosity", "Wants"],
@@ -180,7 +180,7 @@
   "category": "Spending Smarts",
   "shareable": true,
   "savable": true,
-  "icon": "🥣",
+  "icon": "assets/icons/meal.svg",
   "quiz": {
     "question": "What is the core strategy of meal planning to reduce food costs?",
     "options": [
@@ -204,7 +204,7 @@
   "category": "Saving Habits",
   "shareable": true,
   "savable": true,
-  "icon": "🛡️",
+  "icon": "assets/icons/emergency.svg",
   "isDaily": true,
   "quiz": {
     "question": "If you miss a day during the 30-day micro-saving challenge, what should you do?",
