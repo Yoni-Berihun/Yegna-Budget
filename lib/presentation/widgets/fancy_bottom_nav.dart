@@ -41,8 +41,8 @@ class FancyBottomNav extends StatelessWidget {
         top: false,
         minimum: EdgeInsets.zero,
         child: Container(
-          constraints: const BoxConstraints(minHeight: 56, maxHeight: 70),
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+          constraints: const BoxConstraints(minHeight: 58, maxHeight: 70),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
