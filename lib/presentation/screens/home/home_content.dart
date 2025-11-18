@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:abushakir/abushakir.dart';
-import '../../../logic/providers/user_provider.dart';
+
 import '../../../logic/providers/budget_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
+import '../../../logic/providers/user_provider.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
 import '../../widgets/animated_hand_wave.dart';
@@ -24,392 +25,97 @@ class _HomeContentState extends ConsumerState<HomeContent> {
   @override
   void initState() {
     super.initState();
-    // Initialize with current Gregorian date converted to Ethiopian
     _selectedDate = EtDatetime.fromMillisecondsSinceEpoch(
       DateTime.now().millisecondsSinceEpoch,
     );
   }
 
-  void _pickDate(BuildContext context) async {
+  Future<void> _pickDate(BuildContext context) async {
     final picked = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => EthiopianCalendarPage(initialDate: _selectedDate),
       ),
     );
-
     if (picked != null && picked is EtDatetime) {
-      setState(() {
-        _selectedDate = picked;
-      });
+      setState(() => _selectedDate = picked);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final name = ref.watch(userNameProvider);
-    final displayName = name.isEmpty ? 'User' : name;
+    final userName = ref.watch(userNameProvider);
     final budget = ref.watch(budgetProvider);
-    final progress = budget.progress;
-    final remaining = budget.remaining;
-    final themeMode = ref.watch(themeModeProvider);
-    final isDark = themeMode == ThemeMode.dark;
-
-    final formattedDate = "${_selectedDate.monthGeez} ${_selectedDate.day}";
+    final formattedDate = '${_selectedDate.monthGeez} ${_selectedDate.day}';
+    final theme = Theme.of(context);
+    final isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(
-        toolbarHeight: 150,
-        automaticallyImplyLeading: false,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        elevation: 0,
-        titleSpacing: 0,
-        flexibleSpace: SafeArea(
-          bottom: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Row(
-                  children: [
-                    TextButton.icon(
-                      onPressed: () => _pickDate(context),
-                      icon: const Icon(Icons.calendar_today),
-                      label: Text(formattedDate),
-                    ),
-                    const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.search),
-                      onPressed: () {},
-                    ),
-                    DropdownButton<String>(
-                      underline: const SizedBox(),
-                      icon: const Icon(Icons.language),
-                      items: const [
-                        DropdownMenuItem(value: 'en', child: Text('EN')),
-                        DropdownMenuItem(value: 'am', child: Text('አማ')),
-                      ],
-                      onChanged: (val) {},
-                    ),
-                    IconButton(
-                      icon: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
-                      onPressed: () {
-                        ref.read(themeModeProvider.notifier).toggleTheme();
-                      },
-                    ),
-                  ],
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              sliver: SliverToBoxAdapter(
+                child: HeaderCard(
+                  displayName: userName.isEmpty ? 'User' : userName,
+                  formattedDate: formattedDate,
+                  isDarkMode: isDarkMode,
+                  onPickDate: () => _pickDate(context),
+                  onToggleTheme: () =>
+                      ref.read(themeModeProvider.notifier).toggleTheme(),
                 ),
-                const SizedBox(height: 12),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    final hasEnoughSpace = screenWidth > 350;
-
-                    return Row(
-                      children: [
-                        const AnimatedHandWave(size: 22),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: hasEnoughSpace ? 3 : 1,
-                          child: Text(
-                            'ሰላም $displayName',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                            softWrap: false,
-                          ),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              sliver: SliverToBoxAdapter(
+                child: BudgetSummaryCard(
+                  budget: budget,
+                  onToggleVisibility: () async {
+                    await ref
+                        .read(budgetProvider.notifier)
+                        .toggleShowRemaining();
+                  },
+                  onEditBudget: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20),
                         ),
-                        if (hasEnoughSpace) ...[
-                          const SizedBox(width: 8),
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              'Selam $displayName',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              softWrap: false,
-                            ),
-                          ),
-                        ],
-                      ],
+                      ),
+                      builder: (context) => const EditBudgetSheet(),
                     );
                   },
                 ),
-              ],
+              ),
             ),
-          ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    SectionTitle(text: '💡 Financial Tips'),
+                    SizedBox(height: 12),
+                    TipsCarousel(),
+                    SizedBox(height: 32),
+                    SectionTitle(text: '📊 Budget Analysis'),
+                    SizedBox(height: 12),
+                    AnalysisCard(),
+                    SizedBox(height: 120),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-      body: SafeArea(
-        top: false,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Animated Budget Card
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.0, end: progress),
-                duration: const Duration(milliseconds: 1000),
-                curve: Curves.easeOutCubic,
-                builder: (context, animatedProgress, child) {
-                  return Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Theme.of(
-                              context,
-                            ).colorScheme.primary.withOpacity(0.1),
-                            Theme.of(
-                              context,
-                            ).colorScheme.secondary.withOpacity(0.05),
-                          ],
-                        ),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      TweenAnimationBuilder<double>(
-                                        tween: Tween(
-                                          begin: 0.0,
-                                          end: animatedProgress,
-                                        ),
-                                        duration: const Duration(
-                                          milliseconds: 800,
-                                        ),
-                                        curve: Curves.easeOutBack,
-                                        builder: (context, value, child) {
-                                          return CircularPercentIndicator(
-                                            radius: 70,
-                                            lineWidth: 12,
-                                            percent: value.clamp(0.0, 1.0),
-                                            center: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                Text(
-                                                  '${(value * 100).toStringAsFixed(0)}%',
-                                                  style: TextStyle(
-                                                    fontSize: 24,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(
-                                                      context,
-                                                    ).colorScheme.primary,
-                                                  ),
-                                                ),
-                                                Text(
-                                                  'Used',
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey[600],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            progressColor:
-                                                animatedProgress > 0.8
-                                                ? Colors.red
-                                                : animatedProgress > 0.5
-                                                ? Colors.orange
-                                                : Colors.green,
-                                            backgroundColor: Colors.grey[200]!,
-                                            animation: true,
-                                            animateFromLastPercent: true,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Spent',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colors.grey[600],
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      TweenAnimationBuilder<double>(
-                                        tween: Tween(
-                                          begin: 0.0,
-                                          end: budget.spentAmount,
-                                        ),
-                                        duration: const Duration(
-                                          milliseconds: 800,
-                                        ),
-                                        curve: Curves.easeOut,
-                                        builder: (context, value, child) {
-                                          return FittedBox(
-                                            fit: BoxFit.scaleDown,
-                                            child: Text(
-                                              '${value.toStringAsFixed(0)} ETB',
-                                              style: TextStyle(
-                                                fontSize: 24,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.red[500],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                      const SizedBox(height: 24),
-                                      const Text(
-                                        'Remaining',
-                                        style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Flexible(
-                                            child: TweenAnimationBuilder<double>(
-                                              tween: Tween(
-                                                begin: 0.0,
-                                                end: remaining,
-                                              ),
-                                              duration: const Duration(
-                                                milliseconds: 800,
-                                              ),
-                                              curve: Curves.easeOut,
-                                              builder: (context, value, child) {
-                                                return FittedBox(
-                                                  fit: BoxFit.scaleDown,
-                                                  child: Text(
-                                                    budget.showRemaining
-                                                        ? '${value.toStringAsFixed(0)} ETB'
-                                                        : '******',
-                                                    style: TextStyle(
-                                                      fontSize: 24,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.green[600],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(
-                                              budget.showRemaining
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off,
-                                              size: 20,
-                                            ),
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                            onPressed: () async {
-                                              await ref
-                                                  .read(budgetProvider.notifier)
-                                                  .toggleShowRemaining();
-                                            },
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                showModalBottomSheet(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.vertical(
-                                      top: Radius.circular(20),
-                                    ),
-                                  ),
-                                  builder: (context) => const EditBudgetSheet(),
-                                );
-                              },
-                              icon: const Icon(Icons.edit),
-                              label: const Text('Edit Budget'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 24,
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              'Auto deducted from expenses',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                '💡 Financial Tips',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              const TipsCarousel(),
-              const SizedBox(height: 24),
-              const Text(
-                '📊 Budget Analysis',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              const AnalysisCard(),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: _AnimatedFAB(
+      floatingActionButton: AnimatedFab(
         onTap: () {
           showModalBottomSheet(
             context: context,
@@ -417,7 +123,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
             backgroundColor: Colors.transparent,
             builder: (_) => Container(
               decoration: BoxDecoration(
-                color: Theme.of(context).scaffoldBackgroundColor,
+                color: theme.scaffoldBackgroundColor,
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(24),
                 ),
@@ -431,7 +137,295 @@ class _HomeContentState extends ConsumerState<HomeContent> {
     );
   }
 }
-// ----------------- Edit Budget Bottom Sheet -----------------
+
+class HeaderCard extends StatelessWidget {
+  const HeaderCard({
+    super.key,
+    required this.displayName,
+    required this.formattedDate,
+    required this.isDarkMode,
+    required this.onPickDate,
+    required this.onToggleTheme,
+  });
+
+  final String displayName;
+  final String formattedDate;
+  final bool isDarkMode;
+  final VoidCallback onPickDate;
+  final VoidCallback onToggleTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: onPickDate,
+                  icon: const Icon(Icons.calendar_today, size: 18),
+                  label: Text(formattedDate),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Row(
+                children: [
+                  IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.language),
+                  ),
+                  IconButton(
+                    onPressed: onToggleTheme,
+                    icon: Icon(isDarkMode ? Icons.light_mode : Icons.dark_mode),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              const AnimatedHandWave(size: 30),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ሰላም $displayName',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Selam $displayName',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.textTheme.bodyMedium?.color?.withOpacity(
+                          0.7,
+                        ),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Track your budget, add expenses, and keep your goals in sight.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.textTheme.bodySmall?.color?.withOpacity(0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BudgetSummaryCard extends StatelessWidget {
+  const BudgetSummaryCard({
+    super.key,
+    required this.budget,
+    required this.onToggleVisibility,
+    required this.onEditBudget,
+  });
+
+  final BudgetState budget;
+  final VoidCallback onToggleVisibility;
+  final VoidCallback onEditBudget;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0.0, end: budget.progress),
+      duration: const Duration(milliseconds: 900),
+      curve: Curves.easeOutCubic,
+      builder: (context, animatedProgress, child) {
+        return Card(
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(22),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: CircularPercentIndicator(
+                        radius: 70,
+                        lineWidth: 12,
+                        percent: animatedProgress.clamp(0.0, 1.0),
+                        center: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${(animatedProgress * 100).clamp(0, 100).toStringAsFixed(0)}%',
+                              style: const TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Used',
+                              style: TextStyle(
+                                color: Colors.grey.shade600,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        progressColor: animatedProgress > .8
+                            ? Colors.red
+                            : animatedProgress > .5
+                            ? Colors.orange
+                            : Colors.green,
+                        backgroundColor: Colors.grey.shade200,
+                      ),
+                    ),
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Spent',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 6),
+                          TweenAnimationBuilder<double>(
+                            tween: Tween(begin: 0.0, end: budget.spentAmount),
+                            duration: const Duration(milliseconds: 700),
+                            builder: (context, value, _) {
+                              return Text(
+                                '${value.toStringAsFixed(0)} ETB',
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Remaining',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 6),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: budget.remaining),
+                                duration: const Duration(milliseconds: 700),
+                                builder: (context, value, _) {
+                                  return Text(
+                                    budget.showRemaining
+                                        ? '${value.toStringAsFixed(0)} ETB'
+                                        : '******',
+                                    style: const TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green,
+                                    ),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                onPressed: onToggleVisibility,
+                                icon: Icon(
+                                  budget.showRemaining
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: onEditBudget,
+                    icon: const Icon(Icons.edit),
+                    label: const Text('Edit Budget'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Auto deducted from your recorded expenses.',
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  const SectionTitle({super.key, required this.text});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+    );
+  }
+}
 
 class EditBudgetSheet extends ConsumerStatefulWidget {
   const EditBudgetSheet({super.key});
@@ -447,8 +441,7 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
   @override
   void initState() {
     super.initState();
-    final currentBudget = ref.read(budgetProvider).totalBudget;
-    _controller.text = currentBudget.toStringAsFixed(0);
+    _controller.text = ref.read(budgetProvider).totalBudget.toStringAsFixed(0);
   }
 
   @override
@@ -470,8 +463,6 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
             ),
             const SizedBox(height: 12),
-
-            // Input field
             TextField(
               controller: _controller,
               decoration: const InputDecoration(
@@ -481,8 +472,6 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
-
-            // Period toggle
             Row(
               children: [
                 ChoiceChip(
@@ -499,34 +488,22 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
               ],
             ),
             const SizedBox(height: 12),
-
-            // Quick suggestions
             Wrap(
               spacing: 8,
               children: [
-                for (var amount in [1000, 2000, 3000, 5000, 8000])
+                for (final amount in [1000, 2000, 3000, 5000, 8000])
                   ActionChip(
-                    label: Text('$amount'),
-                    onPressed: () {
-                      _controller.text = amount.toString();
-                    },
+                    label: Text(''),
+                    onPressed: () => _controller.text = amount.toString(),
                   ),
               ],
             ),
             const SizedBox(height: 12),
-
-            // Tips
             const Text(
-              '💡 Budget Tips:\n'
-              '• Include all essential expenses\n'
-              '• Add 10–15% buffer for unexpected costs\n'
-              '• Review and adjust monthly\n'
-              '• Consider Ethiopian holidays and events',
-              style: TextStyle(fontSize: 12, color: Colors.black87),
+              ' Tips:\n Include essential expenses\n Keep a small buffer\n Review monthly\n Consider holidays & events',
+              style: TextStyle(fontSize: 12),
             ),
             const SizedBox(height: 12),
-
-            // Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -538,37 +515,35 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
                 ElevatedButton(
                   onPressed: () async {
                     final entered = double.tryParse(_controller.text);
-                    if (entered != null && entered > 0) {
-                      try {
-                        // Update provider (ensure BudgetNotifier has updateBudget)
-                        await ref
-                            .read(budgetProvider.notifier)
-                            .updateBudget(entered);
-
-                        if (mounted) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Budget updated successfully! ✅'),
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error updating budget: $e'),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      }
-                    } else {
+                    if (entered == null || entered <= 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Please enter a valid amount ❌'),
+                          content: Text('Please enter a valid amount '),
                         ),
                       );
+                      return;
+                    }
+                    try {
+                      await ref
+                          .read(budgetProvider.notifier)
+                          .updateBudget(entered);
+                      if (mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Budget updated successfully! '),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error updating budget: '),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -585,17 +560,16 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
   }
 }
 
-// Animated Floating Action Button with Pulse Effect
-class _AnimatedFAB extends StatefulWidget {
+class AnimatedFab extends StatefulWidget {
+  const AnimatedFab({super.key, required this.onTap});
+
   final VoidCallback onTap;
 
-  const _AnimatedFAB({required this.onTap});
-
   @override
-  State<_AnimatedFAB> createState() => _AnimatedFABState();
+  State<AnimatedFab> createState() => _AnimatedFabState();
 }
 
-class _AnimatedFABState extends State<_AnimatedFAB>
+class _AnimatedFabState extends State<AnimatedFab>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
@@ -608,13 +582,11 @@ class _AnimatedFABState extends State<_AnimatedFAB>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat();
-
-    _scaleAnimation = Tween<double>(
+    _scaleAnimation = Tween(
       begin: 1.0,
-      end: 1.1,
+      end: 1.08,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-
-    _pulseAnimation = Tween<double>(
+    _pulseAnimation = Tween(
       begin: 0.0,
       end: 1.0,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
@@ -636,9 +608,8 @@ class _AnimatedFABState extends State<_AnimatedFAB>
           return Stack(
             alignment: Alignment.center,
             children: [
-              // Pulsing shadow effect
               Transform.scale(
-                scale: 1.0 + (_pulseAnimation.value * 0.3),
+                scale: 1 + (_pulseAnimation.value * 0.3),
                 child: Container(
                   width: 64,
                   height: 64,
@@ -656,27 +627,18 @@ class _AnimatedFABState extends State<_AnimatedFAB>
                   ),
                 ),
               ),
-              // Main button
               Transform.scale(
                 scale: _scaleAnimation.value,
                 child: Container(
                   width: 64,
                   height: 64,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    gradient: const LinearGradient(
+                    gradient: LinearGradient(
                       colors: [Color(0xFFFF6B35), Color(0xFFFF8E53)],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.orange.withOpacity(0.6),
-                        blurRadius: 15,
-                        spreadRadius: 3,
-                        offset: const Offset(0, 5),
-                      ),
-                    ],
                   ),
                   child: const Center(
                     child: Icon(Icons.add, color: Colors.white, size: 32),
