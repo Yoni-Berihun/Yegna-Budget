@@ -268,14 +268,18 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
                             ),
                             if (expenseAmount > 0) ...[
                               const SizedBox(height: 2),
-                              Text(
-                                '${expenseAmount.toStringAsFixed(0)}',
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white70
-                                      : Colors.red[600],
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.w600,
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  '${expenseAmount.toStringAsFixed(0)}',
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white70
+                                        : Colors.red[600],
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  maxLines: 1,
                                 ),
                               ),
                             ],

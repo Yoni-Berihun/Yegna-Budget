@@ -143,7 +143,10 @@ class AnalysisScreen extends ConsumerWidget {
                                 : value > 0.5
                                 ? Colors.orange
                                 : Colors.green,
-                            backgroundColor: Colors.grey[200]!,
+                            backgroundColor:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.grey[800]!
+                                : Colors.grey[200]!,
                             animation: true,
                             animateFromLastPercent: true,
                           );

@@ -26,7 +26,12 @@ class AnalysisCard extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Colors.blue.shade50, Colors.purple.shade50],
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    Colors.blue.shade900.withOpacity(0.3),
+                    Colors.purple.shade900.withOpacity(0.3),
+                  ]
+                : [Colors.blue.shade50, Colors.purple.shade50],
           ),
         ),
         child: Padding(
@@ -134,7 +139,9 @@ class AnalysisCard extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.color?.withOpacity(0.8),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -159,7 +166,9 @@ class AnalysisCard extends ConsumerWidget {
                               '${entry.value.toStringAsFixed(0)} ETB (${percentage.toStringAsFixed(1)}%)',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.color?.withOpacity(0.7),
                               ),
                             ),
                           ],
@@ -172,7 +181,11 @@ class AnalysisCard extends ConsumerWidget {
                           builder: (context, value, child) {
                             return LinearProgressIndicator(
                               value: value,
-                              backgroundColor: Colors.grey[200],
+                              backgroundColor:
+                                  Theme.of(context).brightness ==
+                                      Brightness.dark
+                                  ? Colors.grey[800]!
+                                  : Colors.grey[200]!,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 _getCategoryColor(entry.key),
                               ),
@@ -202,7 +215,9 @@ class AnalysisCard extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.7),
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white.withOpacity(0.1)
+            : Colors.white.withOpacity(0.7),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.3)),
       ),
@@ -216,7 +231,12 @@ class AnalysisCard extends ConsumerWidget {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.color?.withOpacity(0.7),
+                  ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

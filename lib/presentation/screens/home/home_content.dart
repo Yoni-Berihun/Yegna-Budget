@@ -7,6 +7,7 @@ import '../../../logic/providers/budget_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
 import '../../../presentation/widgets/tips_carousel.dart';
 import '../../widgets/analysis_card.dart';
+import '../../widgets/animated_hand_wave.dart';
 import '../calender/ethiopian_calender_page.dart';
 import '../expense/add_expense_sheet.dart';
 
@@ -99,7 +100,7 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                 ),
                 Row(
                   children: [
-                    const Text('👋', style: TextStyle(fontSize: 22)),
+                    const AnimatedHandWave(size: 22),
                     const SizedBox(width: 10),
                     Text(
                       'ሰላም $displayName',
@@ -286,7 +287,8 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                                         : '******',
                                                     style: TextStyle(
                                                       fontSize: 24,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                       color: Colors.green[600],
                                                     ),
                                                   ),

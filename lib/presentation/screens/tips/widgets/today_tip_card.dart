@@ -71,7 +71,7 @@ class TodayTipCard extends StatelessWidget {
                   "የዛሬ የገንዘብ ምክር",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 16,
-                    color: Colors.grey[700],
+                    color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -80,14 +80,20 @@ class TodayTipCard extends StatelessWidget {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.green[600],
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
                         "Today's Tip",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
