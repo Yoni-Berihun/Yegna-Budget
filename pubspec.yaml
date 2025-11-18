@@ -42,5 +42,6 @@ flutter:
     - assets/images/monthly_review.png
     - assets/lottie/Success.json
     - assets/lottie/wrong.json
+    - assets/icons/
 
    
