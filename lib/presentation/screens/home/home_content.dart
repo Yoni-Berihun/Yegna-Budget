@@ -42,6 +42,12 @@ class _HomeContentState extends ConsumerState<HomeContent> {
     }
   }
 
+  void _showMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final userName = ref.watch(userNameProvider);
@@ -66,6 +72,10 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                   onPickDate: () => _pickDate(context),
                   onToggleTheme: () =>
                       ref.read(themeModeProvider.notifier).toggleTheme(),
+                  onSearchTap: () =>
+                      _showMessage(context, 'Search is coming soon!'),
+                  onLanguageTap: () =>
+                      _showMessage(context, 'Language options coming soon!'),
                 ),
               ),
             ),
@@ -146,6 +156,8 @@ class HeaderCard extends StatelessWidget {
     required this.isDarkMode,
     required this.onPickDate,
     required this.onToggleTheme,
+    required this.onSearchTap,
+    required this.onLanguageTap,
   });
 
   final String displayName;
@@ -153,6 +165,8 @@ class HeaderCard extends StatelessWidget {
   final bool isDarkMode;
   final VoidCallback onPickDate;
   final VoidCallback onToggleTheme;
+  final VoidCallback onSearchTap;
+  final VoidCallback onLanguageTap;
 
   @override
   Widget build(BuildContext context) {
@@ -183,8 +197,8 @@ class HeaderCard extends StatelessWidget {
                   label: Text(formattedDate),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
+                      horizontal: 8,
+                      vertical: 10,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -192,12 +206,15 @@ class HeaderCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 20),
               Row(
                 children: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: onSearchTap,
+                    icon: const Icon(Icons.search),
+                  ),
+                  IconButton(
+                    onPressed: onLanguageTap,
                     icon: const Icon(Icons.language),
                   ),
                   IconButton(
@@ -211,7 +228,7 @@ class HeaderCard extends StatelessWidget {
           const SizedBox(height: 18),
           Row(
             children: [
-              const AnimatedHandWave(size: 30),
+              const AnimatedHandWave(size: 35),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -277,7 +294,7 @@ class BudgetSummaryCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(22),
           ),
           child: Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(28),
             child: Column(
               children: [
                 Row(
@@ -345,23 +362,31 @@ class BudgetSummaryCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 6),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              TweenAnimationBuilder<double>(
-                                tween: Tween(begin: 0.0, end: budget.remaining),
-                                duration: const Duration(milliseconds: 700),
-                                builder: (context, value, _) {
-                                  return Text(
-                                    budget.showRemaining
-                                        ? '${value.toStringAsFixed(0)} ETB'
-                                        : '******',
-                                    style: const TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green,
-                                    ),
-                                  );
-                                },
+                              Expanded(
+                                child: TweenAnimationBuilder<double>(
+                                  tween: Tween(
+                                    begin: 0.0,
+                                    end: budget.remaining,
+                                  ),
+                                  duration: const Duration(milliseconds: 700),
+                                  builder: (context, value, _) {
+                                    return FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        budget.showRemaining
+                                            ? '${value.toStringAsFixed(0)} ETB'
+                                            : '******',
+                                        style: const TextStyle(
+                                          fontSize: 23,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                               IconButton(
                                 onPressed: onToggleVisibility,
@@ -493,7 +518,7 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
               children: [
                 for (final amount in [1000, 2000, 3000, 5000, 8000])
                   ActionChip(
-                    label: Text(''),
+                    label: Text('$amount ETB'),
                     onPressed: () => _controller.text = amount.toString(),
                   ),
               ],
