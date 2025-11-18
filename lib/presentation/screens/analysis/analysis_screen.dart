@@ -270,6 +270,35 @@ class AnalysisScreen extends ConsumerWidget {
               const SizedBox(height: 24),
             ],
 
+            // Expenses by Reason Type
+            if (expenses.isNotEmpty) ...[
+              Text(
+                'Expenses by Reason Type',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: _buildReasonTypeBreakdown(
+                      expenses,
+                      budget.spentAmount,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+            ],
+
             // Recent Expenses
             Text(
               'Recent Expenses',
@@ -435,6 +464,162 @@ class AnalysisScreen extends ConsumerWidget {
         return Icons.home;
       default:
         return Icons.category;
+    }
+  }
+
+  List<Widget> _buildReasonTypeBreakdown(
+    List<dynamic> expenses,
+    double totalSpent,
+  ) {
+    // Group expenses by reason type
+    final Map<String, double> reasonTypeMap = {};
+    final Map<String, int> reasonTypeCount = {};
+
+    for (var expense in expenses) {
+      final reasonType = expense.reasonType ?? 'Unknown';
+      reasonTypeMap[reasonType] =
+          (reasonTypeMap[reasonType] ?? 0) + expense.amount;
+      reasonTypeCount[reasonType] = (reasonTypeCount[reasonType] ?? 0) + 1;
+    }
+
+    if (reasonTypeMap.isEmpty) {
+      return [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            'No reason type data available',
+            style: TextStyle(color: Colors.grey[600]),
+          ),
+        ),
+      ];
+    }
+
+    // Sort by amount descending
+    final sortedEntries = reasonTypeMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    return sortedEntries.map((entry) {
+      final reasonType = entry.key;
+      final amount = entry.value;
+      final count = reasonTypeCount[reasonType] ?? 0;
+      final percentage = totalSpent > 0 ? (amount / totalSpent * 100) : 0;
+
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _getReasonTypeColor(reasonType).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        _getReasonTypeIcon(reasonType),
+                        color: _getReasonTypeColor(reasonType),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          reasonType,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          '$count expense${count != 1 ? 's' : ''}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${amount.toStringAsFixed(0)} ETB',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: _getReasonTypeColor(reasonType),
+                      ),
+                    ),
+                    Text(
+                      '${percentage.toStringAsFixed(1)}%',
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: percentage / 100),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOut,
+              builder: (context, value, child) {
+                return LinearProgressIndicator(
+                  value: value,
+                  backgroundColor: Colors.grey[200],
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    _getReasonTypeColor(reasonType),
+                  ),
+                  minHeight: 8,
+                );
+              },
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Color _getReasonTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case 'necessity':
+        return Colors.green;
+      case 'impulse':
+        return Colors.orange;
+      case 'planned':
+        return Colors.blue;
+      case 'emergency':
+        return Colors.red;
+      case 'social':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getReasonTypeIcon(String type) {
+    switch (type.toLowerCase()) {
+      case 'necessity':
+        return Icons.check_circle;
+      case 'impulse':
+        return Icons.flash_on;
+      case 'planned':
+        return Icons.event_note;
+      case 'emergency':
+        return Icons.warning;
+      case 'social':
+        return Icons.people;
+      default:
+        return Icons.help_outline;
     }
   }
 }

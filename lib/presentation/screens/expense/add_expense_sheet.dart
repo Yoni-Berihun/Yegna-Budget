@@ -336,47 +336,60 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                   Expanded(
                     flex: 2,
                     child: ElevatedButton.icon(
-                      onPressed: () {
+                      onPressed: () async {
                         final amount = double.tryParse(_amountController.text);
                         final reason = _reasonController.text.trim();
 
                         if (amount != null && amount > 0 && reason.isNotEmpty) {
-                          ref
-                              .read(budgetProvider.notifier)
-                              .addExpense(
-                                amount: amount,
-                                category: _category,
-                                reasonType: _reasonType,
-                                reason: reason,
-                                description:
-                                    _descriptionController.text.trim().isEmpty
-                                    ? null
-                                    : _descriptionController.text.trim(),
-                                receiptPath: _receiptImage?.path,
-                              );
+                          try {
+                            await ref
+                                .read(budgetProvider.notifier)
+                                .addExpense(
+                                  amount: amount,
+                                  category: _category,
+                                  reasonType: _reasonType,
+                                  reason: reason,
+                                  description:
+                                      _descriptionController.text.trim().isEmpty
+                                      ? null
+                                      : _descriptionController.text.trim(),
+                                  receiptPath: _receiptImage?.path,
+                                );
 
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.check_circle,
-                                    color: Colors.white,
+                            if (mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.white,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Expense added: ETB ${amount.toStringAsFixed(0)} ✅',
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Expense added: ETB ${amount.toStringAsFixed(0)} ✅',
+                                  behavior: SnackBarBehavior.floating,
+                                  backgroundColor: Colors.green,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                ],
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.green,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Failed to add expense: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

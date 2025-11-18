@@ -15,12 +15,17 @@ class BudgetStorageService {
 
   // Save budget state
   static Future<void> saveBudget(BudgetState budget) async {
-    final box = await _box;
-    await box.put(_budgetKey, {
-      'totalBudget': budget.totalBudget,
-      'spentAmount': budget.spentAmount,
-      'showRemaining': budget.showRemaining,
-    });
+    try {
+      final box = await _box;
+      await box.put(_budgetKey, {
+        'totalBudget': budget.totalBudget,
+        'spentAmount': budget.spentAmount,
+        'showRemaining': budget.showRemaining,
+      });
+    } catch (e) {
+      print('Error saving budget to storage: $e');
+      rethrow;
+    }
   }
 
   // Load budget state
@@ -39,9 +44,14 @@ class BudgetStorageService {
 
   // Save expenses
   static Future<void> saveExpenses(List<Expense> expenses) async {
-    final box = await _box;
-    final expensesJson = expenses.map((e) => e.toJson()).toList();
-    await box.put(_expensesKey, expensesJson);
+    try {
+      final box = await _box;
+      final expensesJson = expenses.map((e) => e.toJson()).toList();
+      await box.put(_expensesKey, expensesJson);
+    } catch (e) {
+      print('Error saving expenses to storage: $e');
+      rethrow;
+    }
   }
 
   // Load expenses

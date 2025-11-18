@@ -102,17 +102,25 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                   children: [
                     const AnimatedHandWave(size: 22),
                     const SizedBox(width: 10),
-                    Text(
-                      'ሰላም $displayName',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        'ሰላም $displayName',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Text(
-                      'Selam $displayName',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    Flexible(
+                      child: Text(
+                        'Selam $displayName',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
@@ -305,8 +313,8 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                                             ),
                                             padding: EdgeInsets.zero,
                                             constraints: const BoxConstraints(),
-                                            onPressed: () {
-                                              ref
+                                            onPressed: () async {
+                                              await ref
                                                   .read(budgetProvider.notifier)
                                                   .toggleShowRemaining();
                                             },
@@ -504,18 +512,33 @@ class _EditBudgetSheetState extends ConsumerState<EditBudgetSheet> {
                 ),
                 const SizedBox(width: 8),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     final entered = double.tryParse(_controller.text);
                     if (entered != null && entered > 0) {
-                      // Update provider (ensure BudgetNotifier has updateBudget)
-                      ref.read(budgetProvider.notifier).updateBudget(entered);
+                      try {
+                        // Update provider (ensure BudgetNotifier has updateBudget)
+                        await ref
+                            .read(budgetProvider.notifier)
+                            .updateBudget(entered);
 
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Budget updated successfully! ✅'),
-                        ),
-                      );
+                        if (mounted) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Budget updated successfully! ✅'),
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error updating budget: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

@@ -295,7 +295,9 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
           // Selected date expenses
           if (_selectedDate != null)
             Container(
-              constraints: const BoxConstraints(maxHeight: 300),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.4,
+              ),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 boxShadow: [
@@ -314,15 +316,22 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'Expenses on ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).textTheme.bodyLarge?.color,
+                        Flexible(
+                          child: Text(
+                            'Expenses on ${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(
+                                context,
+                              ).textTheme.bodyLarge?.color,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             TextButton(
                               onPressed: () {
@@ -343,7 +352,7 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
                       ],
                     ),
                   ),
-                  Flexible(child: _buildExpensesList(_selectedDate!)),
+                  Expanded(child: _buildExpensesList(_selectedDate!)),
                 ],
               ),
             ),
@@ -376,7 +385,8 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
 
     return ListView.builder(
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       itemCount: expenses.length,
       itemBuilder: (context, index) {
         final expense = expenses[index];
@@ -399,7 +409,11 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
               expense.category,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: Text(expense.reason),
+            subtitle: Text(
+              expense.reason,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             trailing: Text(
               '${expense.amount.toStringAsFixed(0)} ETB',
               style: TextStyle(

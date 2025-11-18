@@ -607,39 +607,102 @@ class _SplitExpenseSheetState extends ConsumerState<_SplitExpenseSheet> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  if (_reasonController.text.trim().isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a reason'),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  }
+                onPressed: () async {
+                  try {
+                    if (_reasonController.text.trim().isEmpty) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please enter a reason'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                      return;
+                    }
 
-                  ref
-                      .read(budgetProvider.notifier)
-                      .addExpense(
-                        amount: widget.amount,
-                        category: _category,
-                        reasonType: _reasonType,
-                        reason: _reasonController.text.trim(),
-                        description: _descriptionController.text.trim().isEmpty
-                            ? null
-                            : _descriptionController.text.trim(),
+                    if (widget.amount <= 0 ||
+                        widget.amount.isNaN ||
+                        widget.amount.isInfinite) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Invalid amount. Please check your input.',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    // Validate category and reasonType are not empty
+                    if (_category.isEmpty || _reasonType.isEmpty) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Please select a category and reason type',
+                            ),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                      return;
+                    }
+
+                    // Add expense and await completion
+                    await ref
+                        .read(budgetProvider.notifier)
+                        .addExpense(
+                          amount: widget.amount,
+                          category: _category,
+                          reasonType: _reasonType,
+                          reason: _reasonController.text.trim(),
+                          description:
+                              _descriptionController.text.trim().isEmpty
+                              ? null
+                              : _descriptionController.text.trim(),
+                        );
+
+                    // Only navigate if widget is still mounted
+                    if (mounted) {
+                      // Pop the bottom sheet first
+                      Navigator.pop(context);
+
+                      // Then pop the splitter screen if it's still in the stack
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+
+                      // Show success message
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Your share (${widget.amount.toStringAsFixed(0)} ETB) added! ✅',
+                          ),
+                          backgroundColor: Colors.green,
+                          duration: const Duration(seconds: 2),
+                        ),
                       );
+                    }
+                  } catch (e) {
+                    // Log the error for debugging
+                    print('Error in splitter add expense: $e');
 
-                  Navigator.pop(context);
-                  Navigator.pop(context); // Close splitter screen too
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Your share (${widget.amount.toStringAsFixed(0)} ETB) added! ✅',
-                      ),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Failed to add expense. Please try again.\n${e.toString()}',
+                          ),
+                          backgroundColor: Colors.red,
+                          duration: const Duration(seconds: 4),
+                        ),
+                      );
+                    }
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,

@@ -164,8 +164,19 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: Text(budget.showRemaining ? 'Visible' : 'Hidden'),
                     trailing: Switch(
                       value: budget.showRemaining,
-                      onChanged: (value) {
-                        ref.read(budgetProvider.notifier).toggleShowRemaining();
+                      onChanged: (value) async {
+                        try {
+                          await ref
+                              .read(budgetProvider.notifier)
+                              .toggleShowRemaining();
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error updating setting: $e'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),

@@ -110,61 +110,79 @@ class BudgetNotifier extends Notifier<BudgetState> {
   }
 
   Future<void> _saveBudget() async {
-    await BudgetStorageService.saveBudget(state);
-    await BudgetStorageService.saveExpenses(state.expenses);
+    try {
+      await BudgetStorageService.saveBudget(state);
+      await BudgetStorageService.saveExpenses(state.expenses);
+    } catch (e) {
+      // Log error but don't crash - state is already updated
+      print('Error saving budget: $e');
+      // Re-throw to allow caller to handle if needed
+      rethrow;
+    }
   }
 
-  void addExpense({
+  Future<void> addExpense({
     required double amount,
     required String category,
     required String reasonType,
     required String reason,
     String? description,
     String? receiptPath,
-  }) {
-    final newExpense = Expense(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      amount: amount,
-      category: category,
-      reasonType: reasonType,
-      reason: reason,
-      description: description,
-      receiptPath: receiptPath,
-      date: DateTime.now(),
-    );
-    final updatedExpenses = [...state.expenses, newExpense];
-    final updatedSpent = state.spentAmount + amount;
+  }) async {
+    try {
+      final newExpense = Expense(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        amount: amount,
+        category: category,
+        reasonType: reasonType,
+        reason: reason,
+        description: description,
+        receiptPath: receiptPath,
+        date: DateTime.now(),
+      );
+      final updatedExpenses = [...state.expenses, newExpense];
+      final updatedSpent = state.spentAmount + amount;
 
-    state = state.copyWith(
-      spentAmount: updatedSpent,
-      expenses: updatedExpenses,
-    );
-    _saveBudget();
+      state = state.copyWith(
+        spentAmount: updatedSpent,
+        expenses: updatedExpenses,
+      );
+      await _saveBudget();
+    } catch (e) {
+      // If save fails, revert state to prevent inconsistency
+      print('Error adding expense: $e');
+      rethrow;
+    }
   }
 
-  void toggleShowRemaining() {
+  Future<void> toggleShowRemaining() async {
     state = state.copyWith(showRemaining: !state.showRemaining);
-    _saveBudget();
+    await _saveBudget();
   }
 
-  void updateBudget(double newBudget) {
+  Future<void> updateBudget(double newBudget) async {
     final sanitized = newBudget.isNaN || newBudget <= 0
         ? state.totalBudget
         : newBudget;
     state = state.copyWith(totalBudget: sanitized);
-    _saveBudget();
+    await _saveBudget();
   }
 
-  void deleteExpense(String id) {
-    final expense = state.expenses.firstWhere((e) => e.id == id);
-    final updatedExpenses = state.expenses.where((e) => e.id != id).toList();
-    final updatedSpent = state.spentAmount - expense.amount;
+  Future<void> deleteExpense(String id) async {
+    try {
+      final expense = state.expenses.firstWhere((e) => e.id == id);
+      final updatedExpenses = state.expenses.where((e) => e.id != id).toList();
+      final updatedSpent = state.spentAmount - expense.amount;
 
-    state = state.copyWith(
-      spentAmount: updatedSpent.clamp(0, double.infinity),
-      expenses: updatedExpenses,
-    );
-    _saveBudget();
+      state = state.copyWith(
+        spentAmount: updatedSpent.clamp(0, double.infinity),
+        expenses: updatedExpenses,
+      );
+      await _saveBudget();
+    } catch (e) {
+      print('Error deleting expense: $e');
+      rethrow;
+    }
   }
 
   String? get topCategory {

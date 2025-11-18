@@ -15,20 +15,30 @@ class FancyBottomNav extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
+    // Use theme colors instead of hardcoded orange
+    final backgroundColor = isDark ? theme.colorScheme.surface : Colors.white;
+    final selectedColor = isDark
+        ? theme.colorScheme.primary
+        : theme.colorScheme.primary;
+    final unselectedColor = isDark
+        ? theme.textTheme.bodyMedium?.color?.withOpacity(0.6) ??
+              Colors.grey[400]!
+        : theme.textTheme.bodyMedium?.color?.withOpacity(0.6) ??
+              Colors.grey[600]!;
+
     return Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? const Color(0xFF973C00).withOpacity(0.9)
-            : const Color(0xFF973C00),
+        color: backgroundColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
+        top: false,
         child: Container(
           height: 65,
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -40,35 +50,40 @@ class FancyBottomNav extends StatelessWidget {
                 icon: Icons.home,
                 label: 'Home',
                 index: 0,
-                isDark: isDark,
+                selectedColor: selectedColor,
+                unselectedColor: unselectedColor,
               ),
               _buildNavItem(
                 context: context,
                 icon: Icons.tips_and_updates,
                 label: 'FinTips',
                 index: 1,
-                isDark: isDark,
+                selectedColor: selectedColor,
+                unselectedColor: unselectedColor,
               ),
               _buildNavItem(
                 context: context,
                 icon: Icons.bar_chart,
                 label: 'Analysis',
                 index: 2,
-                isDark: isDark,
+                selectedColor: selectedColor,
+                unselectedColor: unselectedColor,
               ),
               _buildNavItem(
                 context: context,
                 icon: Icons.group,
                 label: 'Splitter',
                 index: 3,
-                isDark: isDark,
+                selectedColor: selectedColor,
+                unselectedColor: unselectedColor,
               ),
               _buildNavItem(
                 context: context,
                 icon: Icons.settings,
                 label: 'Settings',
                 index: 4,
-                isDark: isDark,
+                selectedColor: selectedColor,
+                unselectedColor: unselectedColor,
               ),
             ],
           ),
@@ -82,11 +97,10 @@ class FancyBottomNav extends StatelessWidget {
     required IconData icon,
     required String label,
     required int index,
-    required bool isDark,
+    required Color selectedColor,
+    required Color unselectedColor,
   }) {
     final isSelected = currentIndex == index;
-    final selectedColor = const Color.fromARGB(255, 249, 220, 146);
-    final unselectedColor = const Color.fromARGB(179, 233, 231, 231);
 
     return Expanded(
       child: GestureDetector(
