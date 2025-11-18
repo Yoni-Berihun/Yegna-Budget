@@ -47,7 +47,7 @@ class TodayTipCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 80,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: const Color.fromARGB(255, 221, 215, 215),
                   ),
                 ),
               ),
@@ -68,7 +68,7 @@ class TodayTipCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "የዛሬ የገንዘብ ምክር",
+                  "የዛሬ የገንዘብ አያያዝ ምክር",
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontSize: 16,
                     color: theme.textTheme.bodyMedium?.color?.withOpacity(0.7),
@@ -99,7 +99,7 @@ class TodayTipCard extends StatelessWidget {
                     const SizedBox(width: 12),
                     Chip(
                       label: Text(tip.category),
-                      backgroundColor: Colors.blue.shade50,
+                      backgroundColor: const Color.fromARGB(255, 138, 198, 241),
                     ),
                   ],
                 ),
