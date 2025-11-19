@@ -18,6 +18,9 @@ final Map<String, String> iconMap = {
   "savings": "assets/icons/savings.svg",
   "shopping": "assets/icons/shopping_card.svg",
   "lightbulb": "assets/icons/lightbulb.svg"
+  "telegram": "assets/icons/telegram.svg",
+  "instagram": "assets/icons/instagram.svg",
+  "whatsapp": "assets/icons/whatsapp.svg",
 };
 
 /// Helper to build the correct icon widget from a semantic key

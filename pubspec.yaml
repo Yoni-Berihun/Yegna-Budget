@@ -26,6 +26,7 @@ dependencies:
   pdf: ^3.10.7
   intl: ^0.19.0
   flutter_svg: ^2.0.9
+  url_launcher: ^6.2.5
 
 
 dev_dependencies:
@@ -59,3 +60,4 @@ flutter:
     - assets/icons/savings.svg
     - assets/icons/shopping_card.svg
     - assets/icons/lightbulb.svg
+    - assets/images/developer.jpg
