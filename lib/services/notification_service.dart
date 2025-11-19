@@ -1,120 +1,107 @@
+import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/data/latest.dart' as tz_data;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
 import 'prefs_service.dart';
 
 class NotificationService {
-  static final FlutterLocalNotificationsPlugin _plugin =
-      FlutterLocalNotificationsPlugin();
+  NotificationService._();
 
-  static const int _dailyReminderId = 1001;
-  static const String _channelId = 'daily_reminder_channel';
-  static const String _channelName = 'Daily Budget Reminders';
-  static const String _channelDescription =
-      'Reminder to log your expenses every evening.';
-
+  static final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
   static bool _initialized = false;
-  static tz.Location? _eatLocation;
+
+  static const _channelId = 'yegna_daily_silent_v1';
+  static const _channelName = 'Daily Reminder (Silent)';
+  static const _channelDesc = 'Daily budgeting reminder without sound';
+  static const _dailyId = 1001;
 
   static Future<void> initialize() async {
     if (_initialized) return;
 
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
-    );
-    final iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
+    tzdata.initializeTimeZones();
+    // Fallback to local zone (no external plugin)
+    tz.setLocalLocation(tz.local);
+
+    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const iosInit = DarwinInitializationSettings(
+      requestSoundPermission: false,
       requestBadgePermission: true,
-      requestSoundPermission: true,
+      requestAlertPermission: true,
     );
-
-    final initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
-
+    const initSettings = InitializationSettings(android: androidInit, iOS: iosInit);
     await _plugin.initialize(initSettings);
 
-    // Request runtime permissions where required (iOS prompts, Android handled via manifest).
-    if (Platform.isIOS) {
-      await _plugin
-          .resolvePlatformSpecificImplementation<
-            IOSFlutterLocalNotificationsPlugin
-          >()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
-    }
-
-    tz_data.initializeTimeZones();
-    _eatLocation = tz.getLocation('Africa/Addis_Ababa');
-
+    await _requestRuntimePermissions();
     _initialized = true;
   }
 
-  static Future<void> scheduleDailyReminder({
-    int hour = 20,
-    int minute = 0,
-  }) async {
-    await initialize();
-    final location = _eatLocation ?? tz.getLocation('Africa/Addis_Ababa');
-    final scheduledDate = _nextReminderTime(location, hour, minute);
+  static Future<void> _requestRuntimePermissions() async {
+    if (Platform.isAndroid) {
+      final status = await Permission.notification.status;
+      if (status.isDenied || status.isRestricted) {
+        await Permission.notification.request();
+      }
+    }
+    await _plugin
+        .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>()
+        ?.requestPermissions(alert: true, badge: true, sound: false);
+  }
 
-    const androidDetails = AndroidNotificationDetails(
+  static NotificationDetails _silentDetails() {
+    const android = AndroidNotificationDetails(
       _channelId,
       _channelName,
-      channelDescription: _channelDescription,
-      importance: Importance.high,
-      priority: Priority.high,
+      channelDescription: _channelDesc,
+      importance: Importance.low,
+      priority: Priority.low,
+      playSound: false,
+      enableVibration: false,
+      showWhen: true,
+      category: AndroidNotificationCategory.reminder,
     );
-    const iosDetails = DarwinNotificationDetails();
-
-    await _plugin.zonedSchedule(
-      _dailyReminderId,
-      'YegnaBudget',
-      'Don\'t forget to add your expenses today!',
-      scheduledDate,
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
-      androidAllowWhileIdle: true,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.wallClockTime,
-      matchDateTimeComponents: DateTimeComponents.time,
+    const ios = DarwinNotificationDetails(
+      presentAlert: true,
+      presentBadge: true,
+      presentSound: false,
+      interruptionLevel: InterruptionLevel.passive,
     );
+    return const NotificationDetails(android: android, iOS: ios);
   }
 
   static Future<void> scheduleDailyReminderIfEnabled() async {
-    final prefs = await PrefsService.loadReminderTime();
+    await initialize();
     final enabled = await PrefsService.isDailyNotificationEnabled();
-    if (enabled) {
-      await scheduleDailyReminder(hour: prefs.hour, minute: prefs.minute);
-    } else {
-      await cancelDailyReminder();
-    }
+    if (!enabled) return;
+    final time = await PrefsService.loadReminderTime();
+    await scheduleDailyReminder(hour: time.hour, minute: time.minute);
+  }
+
+  static Future<void> scheduleDailyReminder({required int hour, required int minute}) async {
+    await initialize();
+    await _plugin.cancel(_dailyId);
+
+    final now = tz.TZDateTime.now(tz.local);
+    var next = tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minute);
+    if (next.isBefore(now)) next = next.add(const Duration(days: 1));
+
+    await _plugin.zonedSchedule(
+      _dailyId,
+      'YegnaBudget',
+      "Don't forget to add your expenses today!",
+      next,
+      _silentDetails(),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      payload: 'daily_reminder',
+    );
   }
 
   static Future<void> cancelDailyReminder() async {
     await initialize();
-    await _plugin.cancel(_dailyReminderId);
-  }
-
-  static tz.TZDateTime _nextReminderTime(
-    tz.Location location,
-    int hour,
-    int minute,
-  ) {
-    final now = tz.TZDateTime.now(location);
-    var scheduled = tz.TZDateTime(
-      location,
-      now.year,
-      now.month,
-      now.day,
-      hour,
-      minute,
-    );
-    if (scheduled.isBefore(now)) {
-      scheduled = scheduled.add(const Duration(days: 1));
-    }
-    return scheduled;
+    await _plugin.cancel(_dailyId);
   }
 }

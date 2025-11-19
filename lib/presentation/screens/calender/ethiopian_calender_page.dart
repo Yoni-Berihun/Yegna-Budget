@@ -223,7 +223,7 @@ class _EthiopianCalendarPageState extends ConsumerState<EthiopianCalendarPage> {
                                   context,
                                 ).colorScheme.primary.withOpacity(0.5)
                               : Colors.transparent,
-                          width: isSelected || isToday ? 2 : 0,
+                          width: isSelected || isToday ? 0 : 0,
                         ),
                         boxShadow: isSelected
                             ? [
