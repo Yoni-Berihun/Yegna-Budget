@@ -1,3 +1,6 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 class Quiz {
   final String question;
   final List<String> options;
@@ -86,12 +89,13 @@ class FinancialTipModel {
         'featuredDate': featuredDate?.toIso8601String(),
         'quiz': quiz?.toJson(),
       };
+
+  /// 🔑 Helper: build the correct widget for icon/image
+  Widget buildIcon({double size = 32, Color? color}) {
+    if (icon.endsWith('.svg')) {
+      return SvgPicture.asset(icon, height: size, width: size, color: color);
+    } else {
+      return Image.asset(icon, height: size, width: size);
+    }
+  }
 }
-/* - assets/images/goal_setting.png
-    - assets/images/smart_shopping.png
-    - assets/images/debt_management.png
-    - assets/images/student_saving.png
-    - assets/images/free_tools.png
-    - assets/images/small_wins.png
-    - assets/images/holiday_budget.png
-    */

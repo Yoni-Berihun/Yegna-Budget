@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yegna_budget/data/models/financial_tip_model.dart';
-
+import 'package:yegna_budget/data/models/icon_mapper.dart';
 class TodayTipCard extends StatelessWidget {
   final FinancialTipModel tip;
   final VoidCallback onChallengeMe;
