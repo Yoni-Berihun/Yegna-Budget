@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
-import 'services/prefs_service.dart';
-import 'presentation/screens/welcome/welcome_screen.dart';
-import 'presentation/screens/home/home_screen.dart';
-import 'logic/providers/user_provider.dart';
-import 'logic/providers/theme_provider.dart';
-import 'logic/providers/budget_provider.dart';
 import 'core/theme/app_theme.dart';
+import 'logic/providers/budget_provider.dart';
+import 'logic/providers/theme_provider.dart';
+import 'logic/providers/user_provider.dart';
+import 'presentation/screens/home/home_screen.dart';
+import 'presentation/screens/onboarding/onboarding_screen.dart';
+import 'presentation/screens/splash/splash_screen.dart';
+import 'services/notification_service.dart';
+import 'services/prefs_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +27,7 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       child: YegnaApp(
-        showWelcome: firstTime && (savedName == null || savedName.isEmpty),
+        showOnboarding: firstTime || (savedName == null || savedName.isEmpty),
         initialUserName: savedName,
       ),
     ),
@@ -33,10 +35,14 @@ Future<void> main() async {
 }
 
 class YegnaApp extends ConsumerStatefulWidget {
-  final bool showWelcome;
+  final bool showOnboarding;
   final String? initialUserName;
 
-  const YegnaApp({required this.showWelcome, this.initialUserName, super.key});
+  const YegnaApp({
+    required this.showOnboarding,
+    this.initialUserName,
+    super.key,
+  });
 
   @override
   ConsumerState<YegnaApp> createState() => _YegnaAppState();
@@ -46,17 +52,22 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize budget and user name
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (widget.initialUserName != null &&
-          widget.initialUserName!.isNotEmpty) {
-        ref
-            .read(userNameProvider.notifier)
-            .setUserName(widget.initialUserName!);
-      }
-      // Initialize budget from storage
-      ref.read(budgetProvider.notifier).initialize();
+      _bootstrapState();
     });
+  }
+
+  Future<void> _bootstrapState() async {
+    if (widget.initialUserName != null && widget.initialUserName!.isNotEmpty) {
+      ref.read(userNameProvider.notifier).setUserName(widget.initialUserName!);
+    }
+    await ref.read(budgetProvider.notifier).initialize();
+    // Notifications are optional; failures shouldn't block UI.
+    try {
+      await NotificationService.scheduleDailyReminderIfEnabled();
+    } catch (e) {
+      debugPrint('Notification init failed: $e');
+    }
   }
 
   @override
@@ -69,10 +80,10 @@ class _YegnaAppState extends ConsumerState<YegnaApp> {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode, // 👈 Dynamic theme switching
-      home: widget.showWelcome ? const WelcomeScreen() : const HomeScreen(),
+      home: SplashScreen(showOnboarding: widget.showOnboarding),
       routes: {
         '/home': (_) => const HomeScreen(),
-        '/welcome': (_) => const WelcomeScreen(),
+        '/onboarding': (_) => const OnboardingScreen(),
       },
     );
   }

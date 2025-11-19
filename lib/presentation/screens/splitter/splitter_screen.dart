@@ -269,60 +269,62 @@ class _SplitterScreenState extends ConsumerState<SplitterScreen>
             ),
             const SizedBox(height: 32),
 
-            // Each Person Pays
-            ScaleTransition(
-              scale: _slideAnimation,
-              child: Card(
-                elevation: 6,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Colors.green.withOpacity(0.2),
-                        Colors.green.withOpacity(0.1),
-                      ],
-                    ),
-                  ),
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    children: [
-                      Text(
-                        'Each Person Pays',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.0, end: _eachPersonPays),
-                        duration: const Duration(milliseconds: 800),
-                        curve: Curves.easeOutBack,
-                        builder: (context, value, child) {
-                          return Text(
-                            '${value.toStringAsFixed(2)} ETB',
-                            style: TextStyle(
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[700],
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+            /// Each Person Pays
+Center(
+  child: ScaleTransition(
+    scale: _slideAnimation,
+    child: Card(
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Colors.green.withOpacity(0.2),
+              Colors.green.withOpacity(0.1),
+            ],
+          ),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min, // shrink to fit
+          children: [
+            Text(
+              'Each Person Pays',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.grey[700],
               ),
             ),
-            const SizedBox(height: 32),
-
+            const SizedBox(height: 12),
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: _eachPersonPays),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutBack,
+              builder: (context, value, child) {
+                return Text(
+                  '${value.toStringAsFixed(2)} ETB',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green[700],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    ),
+  ),
+),
+const SizedBox(height: 32),
             // Add to My Share Button
             SizedBox(
               width: double.infinity,

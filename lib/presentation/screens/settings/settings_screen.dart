@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:yegna_budget/data/models/icon_mapper.dart';
+
 import '../../../logic/providers/budget_provider.dart';
+import '../../../logic/providers/preferences_provider.dart';
 import '../../../logic/providers/theme_provider.dart';
 import '../../../logic/providers/user_provider.dart';
-import '../../../services/export_service.dart';
 import '../../../services/budget_storage_service.dart';
+import '../../../services/export_service.dart';
+import '../../../services/notification_service.dart';
+import '../../../services/prefs_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -14,10 +20,21 @@ class SettingsScreen extends ConsumerWidget {
     final budget = ref.watch(budgetProvider);
     final themeMode = ref.watch(themeModeProvider);
     final userName = ref.watch(userNameProvider);
+    final dailyReminderAsync = ref.watch(dailyNotificationProvider);
+    final reminderTimeAsync = ref.watch(reminderTimeProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: AppBar(title: const Text('⚙️ Settings'), elevation: 0),
+      appBar: AppBar(
+        elevation: 0,
+        title: Row(
+          children: [
+            const Icon(Icons.settings, size: 22),
+            const SizedBox(width: 8),
+            const Text('Settings'),
+          ],
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -136,6 +153,19 @@ class SettingsScreen extends ConsumerWidget {
               ),
               child: Column(
                 children: [
+                  ListTile(
+                    leading: Icon(
+                      Icons.badge,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text('Nickname'),
+                    subtitle: Text(
+                      userName.isEmpty ? 'Tap to set your nickname' : userName,
+                    ),
+                    trailing: const Icon(Icons.edit),
+                    onTap: () => _showNicknameDialog(context, ref, userName),
+                  ),
+                  const Divider(height: 1),
                   SwitchListTile(
                     secondary: Icon(
                       themeMode == ThemeMode.dark
@@ -180,6 +210,95 @@ class SettingsScreen extends ConsumerWidget {
                       },
                     ),
                   ),
+                  const Divider(height: 1),
+                  dailyReminderAsync.when(
+                    data: (enabled) => SwitchListTile(
+                      secondary: Icon(
+                        Icons.notifications_active,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: const Text('Daily Reminder'),
+                      subtitle: Text(
+                        '${_formatReminderSubtitle(reminderTimeAsync, context)} • Silent notification',
+                      ),
+                      value: enabled,
+                      onChanged: (value) async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          if (value) {
+                            await PrefsService.setDailyNotificationEnabled(true);
+                            final time = await PrefsService.loadReminderTime();
+                            await NotificationService.scheduleDailyReminder(
+                              hour: time.hour,
+                              minute: time.minute,
+                            );
+                          } else {
+                            await PrefsService.setDailyNotificationEnabled(false);
+                            await NotificationService.cancelDailyReminder();
+                          }
+                        } catch (e) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to update reminder: $e'),
+                            ),
+                          );
+                          await PrefsService.setDailyNotificationEnabled(!value);
+                        } finally {
+                          ref.invalidate(dailyNotificationProvider);
+                        }
+                      },
+                    ),
+                    loading: () => const ListTile(
+                      leading: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      title: Text('Daily Reminder'),
+                      subtitle: Text('Loading your preference...'),
+                    ),
+                    error: (error, _) => ListTile(
+                      leading: const Icon(Icons.error, color: Colors.red),
+                      title: const Text('Daily Reminder'),
+                      subtitle: Text('Error: $error'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () =>
+                            ref.invalidate(dailyNotificationProvider),
+                      ),
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  reminderTimeAsync.when(
+                    data: (time) => ListTile(
+                      leading: Icon(
+                        Icons.schedule,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      title: const Text('Reminder Time'),
+                      subtitle: Text(time.format(context)),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => _pickReminderTime(context, ref, time),
+                    ),
+                    loading: () => const ListTile(
+                      leading: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      title: Text('Reminder Time'),
+                      subtitle: Text('Loading...'),
+                    ),
+                    error: (e, _) => ListTile(
+                      leading: const Icon(Icons.error, color: Colors.red),
+                      title: const Text('Reminder Time'),
+                      subtitle: Text('Error: $e'),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () => ref.invalidate(reminderTimeProvider),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -215,6 +334,16 @@ class SettingsScreen extends ConsumerWidget {
                     title: const Text('About'),
                     subtitle: const Text('App version and information'),
                     onTap: () => _showAboutDialog(context),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(
+                      Icons.developer_mode,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text('Developer'),
+                    subtitle: const Text('Meet the developer'),
+                    onTap: () => _showDeveloperDialog(context),
                   ),
                 ],
               ),
@@ -302,7 +431,7 @@ class SettingsScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('PDF exported successfully! ✅'),
+            content: Text('PDF exported successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -348,7 +477,7 @@ class SettingsScreen extends ConsumerWidget {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('CSV exported successfully! ✅'),
+            content: Text('CSV exported successfully!'),
             backgroundColor: Colors.green,
           ),
         );
@@ -401,6 +530,99 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  String _formatReminderSubtitle(
+    AsyncValue<TimeOfDay> timeAsync,
+    BuildContext context,
+  ) {
+    return timeAsync.maybeWhen(
+      data: (time) => time.format(context),
+      orElse: () => '8:00 PM',
+    );
+  }
+
+  Future<void> _showNicknameDialog(
+    BuildContext context,
+    WidgetRef ref,
+    String currentName,
+  ) async {
+    final controller = TextEditingController(text: currentName);
+    final messenger = ScaffoldMessenger.of(context);
+    await showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Update Nickname'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Nickname',
+            hintText: 'e.g. Yonii',
+          ),
+          textInputAction: TextInputAction.done,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final nickname = controller.text.trim();
+              if (nickname.length < 2) {
+                messenger.showSnackBar(
+                  const SnackBar(
+                    content: Text('Nickname must be at least 2 characters.'),
+                  ),
+                );
+                return;
+              }
+              await PrefsService.saveUserName(nickname);
+              ref.read(userNameProvider.notifier).setUserName(nickname);
+              if (dialogContext.mounted) {
+                Navigator.pop(dialogContext);
+              }
+              messenger.showSnackBar(
+                SnackBar(content: Text('Nickname updated to $nickname')),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickReminderTime(
+    BuildContext context,
+    WidgetRef ref,
+    TimeOfDay initialTime,
+  ) async {
+    final newTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+    if (newTime == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await PrefsService.saveReminderTime(newTime);
+      if (await PrefsService.isDailyNotificationEnabled()) {
+        await NotificationService.scheduleDailyReminder(
+          hour: newTime.hour,
+          minute: newTime.minute,
+        );
+      }
+      messenger.showSnackBar(
+        SnackBar(content: Text('Reminder set for ${newTime.format(context)}')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Failed to update reminder: $e')),
+      );
+    } finally {
+      ref.invalidate(reminderTimeProvider);
+      ref.invalidate(dailyNotificationProvider);
+    }
+  }
+
   void _showAboutDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -433,6 +655,7 @@ class SettingsScreen extends ConsumerWidget {
   }
 }
 
+// Reusable export option tile
 class _ExportOptionTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -467,6 +690,7 @@ class _ExportOptionTile extends StatelessWidget {
   }
 }
 
+// Reusable stat item
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;
@@ -487,6 +711,119 @@ class _StatItem extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+void _showDeveloperDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Developer'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipOval(
+              child: Image.asset(
+                'assets/images/developer.jpg',
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 80,
+                  height: 80,
+                  color: Colors.grey.shade200,
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.person, size: 40),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Hi, I am Yonatan Berihun, the developer of YegnaBudget. '
+              'This app was built to empower students and communities '
+              'with financial literacy and practical budgeting tools.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Column(
+              children: [
+                const Text(
+                  'Contact me at:',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: buildMappedIcon('telegram', size: 28),
+                      onPressed: () => _launchExternal(
+                        context,
+                        'https://t.me/Yoni_xyz',
+                        'Could not open Telegram',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton(
+                      icon: buildMappedIcon('instagram', size: 28),
+                      onPressed: () => _launchExternal(
+                        context,
+                        'https://instagram.com/yoni_berihun',
+                        'Could not open Instagram',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    IconButton(
+                      icon: buildMappedIcon('whatsapp', size: 28),
+                      onPressed: () => _launchExternal(
+                        context,
+                        'https://wa.me/251991134526',
+                        'Could not open WhatsApp',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () => _launchExternal(
+                    context,
+                    'https://t.me/Yoni_verse',
+                    'Could not open Telegram community',
+                  ),
+                  child: const Text(
+                    'Join my Telegram community',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Close'),
+        ),
+      ],
+    ),
+  );
+}
+
+Future<void> _launchExternal(
+  BuildContext context,
+  String url,
+  String errorMessage,
+) async {
+  final uri = Uri.parse(url);
+  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(errorMessage)),
     );
   }
 }
