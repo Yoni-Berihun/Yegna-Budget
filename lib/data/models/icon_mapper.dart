@@ -31,3 +31,24 @@ Widget buildMappedIcon(String key, {double size = 32, Color? color}) {
   }
   return SvgPicture.asset(path, height: size, width: size, color: color);
 }
+
+final _iconAssetMap = {
+  "apps": "assets/icons/apps.svg",
+  "budget": "assets/icons/budget.svg",
+  "calendar": "assets/icons/caleder_today.svg",
+  "coffee": "assets/icons/coffee.svg",
+  "credit": "assets/icons/credit_card.svg",
+  "emergency": "assets/icons/emergency.svg",
+  "award": "assets/icons/emoji_events.svg",
+  "envelope": "assets/icons/envelope.svg",
+  "event": "assets/icons/event.svg",
+  "flag": "assets/icons/flag.svg",
+  "meal": "assets/icons/meal.svg",
+  "chart": "assets/icons/pie_chart.svg",
+  "savings": "assets/icons/savings.svg",
+  "shopping": "assets/icons/shopping_card.svg",
+  "lightbulb": "assets/icons/lightbulb.svg",
+  "telegram": "assets/icons/telegramlogo.svg",
+  "instagram": "assets/icons/instagram.svg",
+  "whatsapp": "assets/icons/whatsapp.svg",
+};

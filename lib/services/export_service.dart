@@ -1,87 +1,82 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 import '../logic/providers/budget_provider.dart';
 
 class ExportService {
-  // Export to PDF
-  static Future<void> exportToPDF(BudgetState budget) async {
+  // -------- Public API --------
+
+  // Generate PDF, save to a user-visible folder (Downloads if possible), return file path.
+  static Future<String> exportToPDF(BudgetState budget, {bool openAfterSave = true}) async {
     try {
       final pdf = pw.Document();
       final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
       final now = DateTime.now();
 
-      // Precompute category totals
+      // Category totals
       final Map<String, double> categoryTotals = {};
       for (final e in budget.expenses) {
-        categoryTotals.update(
-          e.category,
-          (v) => v + e.amount,
-          ifAbsent: () => e.amount,
-        );
+        categoryTotals.update(e.category, (v) => v + e.amount, ifAbsent: () => e.amount);
       }
 
-      // Sort expenses by date (newest first)
-      final expenses = [...budget.expenses]
-        ..sort((a, b) => b.date.compareTo(a.date));
+      // Sort expenses (newest first)
+      final expenses = [...budget.expenses]..sort((a, b) => b.date.compareTo(a.date));
 
       pdf.addPage(
         pw.MultiPage(
           pageTheme: _pageTheme(),
-          header: (context) => _header(context, now),
-          footer: (context) => _footer(context),
-          build: (context) => [
+          header: (ctx) => _header(ctx, now),
+          footer: (ctx) => _footer(ctx),
+          build: (ctx) => [
             _summarySection(budget),
             pw.SizedBox(height: 20),
             if (categoryTotals.isNotEmpty) _categoryBreakdown(categoryTotals),
             pw.SizedBox(height: 20),
             _expensesTable(expenses, dateFormat),
             pw.SizedBox(height: 16),
-            pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.end,
-              children: [
-                pw.Text(
-                  'Generated on: ${dateFormat.format(now)}',
-                  style: pw.TextStyle(
-                    fontSize: 10,
-                    fontStyle: pw.FontStyle.italic,
-                    color: PdfColors.grey700,
-                  ),
+            pw.Align(
+              alignment: pw.Alignment.centerRight,
+              child: pw.Text(
+                'Generated on: ${dateFormat.format(now)}',
+                style: pw.TextStyle(
+                  fontSize: 10,
+                  fontStyle: pw.FontStyle.italic,
+                  color: PdfColors.grey700,
                 ),
-              ],
+              ),
             ),
           ],
         ),
       );
 
-      // Save PDF
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File(
-        '${directory.path}/yegna_budget_report_${now.millisecondsSinceEpoch}.pdf',
+      final file = await _saveFile(
+        bytes: await pdf.save(),
+        baseName: 'yegna_budget_report_${now.millisecondsSinceEpoch}',
+        ext: 'pdf',
       );
-      await file.writeAsBytes(await pdf.save());
 
-      // Share PDF
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'YegnaBudget Expense Report');
+      if (openAfterSave) {
+        await _tryOpen(file);
+      }
+
+      return file.path;
     } catch (e) {
       throw Exception('Failed to export PDF: $e');
     }
   }
 
-  // Export to CSV (unchanged)
-  static Future<void> exportToCSV(BudgetState budget) async {
+  // Generate CSV, save same way, return file path.
+  static Future<String> exportToCSV(BudgetState budget, {bool openAfterSave = false}) async {
     try {
       final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
       final now = DateTime.now();
-
       final buffer = StringBuffer();
 
-      // Header
       buffer.writeln('YegnaBudget Expense Report');
       buffer.writeln('Generated on: ${dateFormat.format(now)}');
       buffer.writeln('');
@@ -90,46 +85,83 @@ class ExportService {
       buffer.writeln('Spent,${budget.spentAmount.toStringAsFixed(2)}');
       buffer.writeln('Remaining,${budget.remaining.toStringAsFixed(2)}');
       buffer.writeln('');
-
-      // Expenses header
       buffer.writeln('Expenses');
       buffer.writeln('Date,Category,Amount,Reason Type,Reason,Description');
 
-      // Expenses data
-      for (var expense in budget.expenses) {
+      for (final e in budget.expenses) {
         buffer.writeln(
-          '${dateFormat.format(expense.date)},'
-          '${expense.category},'
-          '${expense.amount.toStringAsFixed(2)},'
-          '${expense.reasonType},'
-          '"${expense.reason.replaceAll('"', '""')}",'
-          '"${(expense.description?.replaceAll('"', '""') ?? "")}"',
+          '${dateFormat.format(e.date)},'
+          '${e.category},'
+          '${e.amount.toStringAsFixed(2)},'
+          '${e.reasonType},'
+          '"${e.reason.replaceAll('"', '""')}",'
+          '"${(e.description?.replaceAll('"', '""') ?? "")}"',
         );
       }
 
-      // Save CSV
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File(
-        '${directory.path}/yegna_budget_report_${now.millisecondsSinceEpoch}.csv',
+      final file = await _saveFile(
+        bytes: buffer.toString().codeUnits,
+        baseName: 'yegna_budget_report_${now.millisecondsSinceEpoch}',
+        ext: 'csv',
       );
-      await file.writeAsString(buffer.toString());
 
-      // Share CSV
-      await Share.shareXFiles([
-        XFile(file.path),
-      ], text: 'YegnaBudget Expense Report');
+      if (openAfterSave) {
+        await _tryOpen(file);
+      }
+
+      return file.path;
     } catch (e) {
       throw Exception('Failed to export CSV: $e');
     }
   }
 
-  // ---------- Helpers for PDF ----------
+  // -------- Internal helpers --------
+
+  static Future<File> _saveFile({
+    required List<int> bytes,
+    required String baseName,
+    required String ext,
+  }) async {
+    // Prefer Downloads (Android). Fallback to documents.
+    Directory targetDir;
+
+    if (!kIsWeb && Platform.isAndroid) {
+      // Common Android public Downloads path
+      final downloads = Directory('/storage/emulated/0/Download');
+      if (await downloads.exists()) {
+        targetDir = downloads;
+      } else {
+        // Fallback to external storage or app documents
+        final extDir = await getExternalStorageDirectory();
+        targetDir = extDir ?? await getApplicationDocumentsDirectory();
+      }
+    } else if (!kIsWeb && Platform.isIOS) {
+      // iOS cannot write to global Downloads; use app docs.
+      targetDir = await getApplicationDocumentsDirectory();
+    } else {
+      // Desktop / web
+      targetDir = await getApplicationDocumentsDirectory();
+    }
+
+    final file = File('${targetDir.path}/$baseName.$ext');
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
+
+  static Future<void> _tryOpen(File file) async {
+    try {
+      await OpenFilex.open(file.path);
+    } catch (_) {
+      // Silently ignore; user can browse manually.
+    }
+  }
+
+  // ---------- PDF Widgets ----------
 
   static pw.PageTheme _pageTheme() {
     return pw.PageTheme(
       margin: const pw.EdgeInsets.fromLTRB(32, 72, 32, 60),
       theme: pw.ThemeData.withFont(
-        // Use built-in Helvetica without wrapping in Font.ttf (expects ByteData).
         base: pw.Font.helvetica(),
       ),
     );
@@ -163,7 +195,7 @@ class ExportService {
               ),
             ),
           ),
-          pw.SizedBox(width: 12),
+            pw.SizedBox(width: 12),
           pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
@@ -222,18 +254,12 @@ class ExportService {
   }
 
   static pw.Widget _summarySection(BudgetState budget) {
-    pw.Widget _summaryCard({
-      required String title,
-      required String value,
-      required PdfColor color,
-      PdfColor? bg,
-    }) {
+    pw.Widget card(String title, String value, PdfColor color, PdfColor bg) {
       return pw.Container(
         padding: const pw.EdgeInsets.all(12),
         decoration: pw.BoxDecoration(
-          color: bg ?? PdfColors.white,
+          color: bg,
           borderRadius: pw.BorderRadius.circular(8),
-          // PdfColor has no withOpacity; use the original color directly or replace with a lighter fixed shade.
           border: pw.Border.all(color: color, width: 0.8),
         ),
         child: pw.Column(
@@ -241,10 +267,7 @@ class ExportService {
           children: [
             pw.Text(
               title,
-              style: pw.TextStyle(
-                fontSize: 10,
-                color: PdfColors.grey700,
-              ),
+              style: pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
             ),
             pw.SizedBox(height: 4),
             pw.Text(
@@ -263,37 +286,35 @@ class ExportService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          'Budget Summary',
-          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Text('Budget Summary',
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 10),
         pw.Row(
           children: [
             pw.Expanded(
-              child: _summaryCard(
-                title: 'Total Budget',
-                value: '${budget.totalBudget.toStringAsFixed(2)} ETB',
-                color: PdfColors.blue800,
-                bg: PdfColors.blue50,
+              child: card(
+                'Total Budget',
+                '${budget.totalBudget.toStringAsFixed(2)} ETB',
+                PdfColors.blue800,
+                PdfColors.blue50,
               ),
             ),
             pw.SizedBox(width: 8),
             pw.Expanded(
-              child: _summaryCard(
-                title: 'Spent',
-                value: '${budget.spentAmount.toStringAsFixed(2)} ETB',
-                color: PdfColors.red800,
-                bg: PdfColors.red50,
+              child: card(
+                'Spent',
+                '${budget.spentAmount.toStringAsFixed(2)} ETB',
+                PdfColors.red800,
+                PdfColors.red50,
               ),
             ),
             pw.SizedBox(width: 8),
             pw.Expanded(
-              child: _summaryCard(
-                title: 'Remaining',
-                value: '${budget.remaining.toStringAsFixed(2)} ETB',
-                color: PdfColors.green800,
-                bg: PdfColors.green50,
+              child: card(
+                'Remaining',
+                '${budget.remaining.toStringAsFixed(2)} ETB',
+                PdfColors.green800,
+                PdfColors.green50,
               ),
             ),
           ],
@@ -303,17 +324,14 @@ class ExportService {
   }
 
   static pw.Widget _categoryBreakdown(Map<String, double> totals) {
-    final items = totals.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-    final totalAll = items.fold<double>(0, (s, e) => s + e.value);
+    final entries = totals.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final total = entries.fold<double>(0, (s, e) => s + e.value);
 
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          'By Category',
-          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Text('By Category',
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 8),
         pw.Table(
           border: pw.TableBorder(
@@ -337,9 +355,9 @@ class ExportService {
                 _cell('Share', bold: true, pad: 8, align: pw.TextAlign.right),
               ],
             ),
-            ...List.generate(items.length, (i) {
-              final e = items[i];
-              final share = totalAll == 0 ? 0 : (e.value / totalAll) * 100;
+            ...List.generate(entries.length, (i) {
+              final e = entries[i];
+              final share = total == 0 ? 0 : (e.value / total) * 100;
               final bg = i.isEven ? PdfColors.white : PdfColors.grey50;
               return pw.TableRow(
                 decoration: pw.BoxDecoration(color: bg),
@@ -357,7 +375,6 @@ class ExportService {
   }
 
   static pw.Widget _expensesTable(List expenses, DateFormat dateFormat) {
-    // Header
     final headers = [
       'Date',
       'Category',
@@ -370,10 +387,8 @@ class ExportService {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          'Expenses (${expenses.length})',
-          style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
-        ),
+        pw.Text('Expenses (${expenses.length})',
+            style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 10),
         pw.Table(
           border: pw.TableBorder(
@@ -384,19 +399,17 @@ class ExportService {
             right: pw.BorderSide.none,
           ),
           columnWidths: {
-            0: const pw.FlexColumnWidth(2),   // Date
-            1: const pw.FlexColumnWidth(2),   // Category
-            2: const pw.FlexColumnWidth(1.8), // Amount
-            3: const pw.FlexColumnWidth(2),   // Reason Type
-            4: const pw.FlexColumnWidth(3),   // Reason
-            5: const pw.FlexColumnWidth(4),   // Description
+            0: const pw.FlexColumnWidth(2),
+            1: const pw.FlexColumnWidth(2),
+            2: const pw.FlexColumnWidth(1.8),
+            3: const pw.FlexColumnWidth(2),
+            4: const pw.FlexColumnWidth(3),
+            5: const pw.FlexColumnWidth(4),
           },
           children: [
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey100),
-              children: headers
-                  .map((h) => _cell(h, bold: true, pad: 8))
-                  .toList(),
+              children: headers.map((h) => _cell(h, bold: true, pad: 8)).toList(),
             ),
             ...List.generate(expenses.length, (i) {
               final e = expenses[i];

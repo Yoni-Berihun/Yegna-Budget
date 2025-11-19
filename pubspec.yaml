@@ -30,6 +30,9 @@ dependencies:
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
   permission_handler: ^12.0.1
+  open_filex: ^4.0.0
+  rename_app: ^1.6.5
+
 
 
 dev_dependencies:
@@ -44,7 +47,7 @@ flutter:
     - assets/data/financial_tips.json
     - assets/images/buffer_tip.png
     - assets/images/spending_chart.png
-    - assets/images/monthly_review.png
+    - assets/images/logo.png
     - assets/lottie/Success.json
     - assets/lottie/wrong.json
     - assets/icons/
@@ -64,6 +67,6 @@ flutter:
     - assets/icons/shopping_card.svg
     - assets/icons/lightbulb.svg
     - assets/images/developer.jpg
-    - assets/icons/telegram.svg
     - assets/icons/instagram.svg
     - assets/icons/whatsapp.svg
+    - assets/icons/telegramlogo.svg

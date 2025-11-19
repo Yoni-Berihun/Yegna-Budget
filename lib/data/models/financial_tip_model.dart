@@ -75,6 +75,8 @@ class FinancialTipModel {
     );
   }
 
+  get imageAsset => null;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'title': title,

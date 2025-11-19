@@ -758,7 +758,7 @@ void _showDeveloperDialog(BuildContext context) {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: buildMappedIcon('telegram', size: 28),
+                      icon: buildMappedIcon('telegram', size: 40),
                       onPressed: () => _launchExternal(
                         context,
                         'https://t.me/Yoni_xyz',

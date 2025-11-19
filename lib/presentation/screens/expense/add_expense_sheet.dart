@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../../../logic/providers/budget_provider.dart';
 
 class AddExpenseSheet extends ConsumerStatefulWidget {
@@ -13,13 +11,11 @@ class AddExpenseSheet extends ConsumerStatefulWidget {
 
 class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
   final TextEditingController _amountController = TextEditingController();
-  final TextEditingController _reasonController = TextEditingController();
+  final TextEditingController _reasonController = TextEditingController(); // now optional
   final TextEditingController _descriptionController = TextEditingController();
-  final ImagePicker _picker = ImagePicker();
 
   String _category = 'Food';
   String _reasonType = 'Necessity';
-  XFile? _receiptImage;
 
   final List<String> _categories = [
     'Food',
@@ -45,50 +41,6 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
     _reasonController.dispose();
     _descriptionController.dispose();
     super.dispose();
-  }
-
-  Future<void> _pickImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(source: source);
-      if (image != null) {
-        setState(() {
-          _receiptImage = image;
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
-    }
-  }
-
-  void _showImageSourceDialog() {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
   @override
@@ -144,7 +96,7 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
               ),
               const SizedBox(height: 24),
 
-              // Amount
+              // Amount (required)
               TextField(
                 controller: _amountController,
                 decoration: InputDecoration(
@@ -213,8 +165,7 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                     ),
                   );
                 }).toList(),
-                onChanged: (val) =>
-                    setState(() => _reasonType = val ?? 'Necessity'),
+                onChanged: (val) => setState(() => _reasonType = val ?? 'Necessity'),
                 decoration: InputDecoration(
                   labelText: 'Reason Type',
                   hintText: 'Why did you spend?',
@@ -228,12 +179,12 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
               ),
               const SizedBox(height: 16),
 
-              // Reason
+              // Reason (Optional now)
               TextField(
                 controller: _reasonController,
                 decoration: InputDecoration(
-                  labelText: 'Reason',
-                  hintText: 'Why did you spend?',
+                  labelText: 'Reason (Optional)',
+                  hintText: 'Brief reason (can leave empty)',
                   prefixIcon: const Icon(Icons.description),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -260,61 +211,6 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                 ),
                 maxLines: 3,
               ),
-              const SizedBox(height: 16),
-
-              // Receipt Photo
-              Text(
-                'Receipt Photo (Optional)',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[700],
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  if (_receiptImage != null)
-                    Expanded(
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey[300]!),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.file(
-                            File(_receiptImage!.path),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: _showImageSourceDialog,
-                        icon: const Icon(Icons.add_photo_alternate),
-                        label: const Text('Add Receipt'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  if (_receiptImage != null) ...[
-                    const SizedBox(width: 8),
-                    IconButton(
-                      onPressed: () => setState(() => _receiptImage = null),
-                      icon: const Icon(Icons.delete),
-                      color: Colors.red,
-                    ),
-                  ],
-                ],
-              ),
               const SizedBox(height: 24),
 
               // Buttons
@@ -337,23 +233,22 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                     flex: 2,
                     child: ElevatedButton.icon(
                       onPressed: () async {
-                        final amount = double.tryParse(_amountController.text);
-                        final reason = _reasonController.text.trim();
+                        final amount = double.tryParse(_amountController.text.trim());
+                        final reason = _reasonController.text.trim(); // optional
 
-                        if (amount != null && amount > 0 && reason.isNotEmpty) {
+                        if (amount != null && amount > 0) {
                           try {
-                            await ref
-                                .read(budgetProvider.notifier)
-                                .addExpense(
+                            await ref.read(budgetProvider.notifier).addExpense(
                                   amount: amount,
                                   category: _category,
                                   reasonType: _reasonType,
-                                  reason: reason,
-                                  description:
-                                      _descriptionController.text.trim().isEmpty
+                                  // pass empty string or null depending on your model (using empty to avoid breaking)
+                                  reason: reason.isEmpty ? '' : reason,
+                                  description: _descriptionController.text.trim().isEmpty
                                       ? null
                                       : _descriptionController.text.trim(),
-                                  receiptPath: _receiptImage?.path,
+                                  // receipt removed – pass null if parameter exists
+                                  receiptPath: null,
                                 );
 
                             if (mounted) {
@@ -362,14 +257,9 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                                 SnackBar(
                                   content: Row(
                                     children: [
-                                      const Icon(
-                                        Icons.check_circle,
-                                        color: Colors.white,
-                                      ),
+                                      const Icon(Icons.check_circle, color: Colors.white),
                                       const SizedBox(width: 8),
-                                      Text(
-                                        'Expense added: ETB ${amount.toStringAsFixed(0)} ✅',
-                                      ),
+                                      Text('Expense added: ETB ${amount.toStringAsFixed(0)} ✅'),
                                     ],
                                   ),
                                   behavior: SnackBarBehavior.floating,
@@ -397,17 +287,13 @@ class _AddExpenseSheetState extends ConsumerState<AddExpenseSheet> {
                                 children: [
                                   Icon(Icons.error, color: Colors.white),
                                   SizedBox(width: 8),
-                                  Text(
-                                    'Please enter valid amount and reason ❌',
-                                  ),
+                                  Text('Please enter a valid amount ❌'),
                                 ],
                               ),
                               behavior: SnackBarBehavior.floating,
                               backgroundColor: Colors.red,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(12),
-                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(12)),
                               ),
                             ),
                           );
