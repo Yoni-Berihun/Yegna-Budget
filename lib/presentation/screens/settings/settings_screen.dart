@@ -216,6 +216,16 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: const Text('App version and information'),
                     onTap: () => _showAboutDialog(context),
                   ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: Icon(
+                      Icons.developer_mode,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    title: const Text('Developer'),
+                    subtitle: const Text('Meet the developer'),
+                    onTap: () => _showDeveloperDialog(context),
+                  ),
                 ],
               ),
             ),
@@ -296,7 +306,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
       );
 
-      await ExportService.exportToPDF(budget);
+           await ExportService.exportToPDF(budget);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -431,8 +441,45 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
+
+  void _showDeveloperDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Developer'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Replace with your actual image asset
+            ClipOval(
+              child: Image.asset(
+                'assets/images/developer.jpg', // <-- your picture
+                width: 80,
+                height: 80,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Hi, I am Yonatan Berihun, the developer of YegnaBudget. '
+              'This app was built to empower students and communities '
+              'with financial literacy and practical budgeting tools.',
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
+// Reusable export option tile
 class _ExportOptionTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -467,6 +514,7 @@ class _ExportOptionTile extends StatelessWidget {
   }
 }
 
+// Reusable stat item
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;

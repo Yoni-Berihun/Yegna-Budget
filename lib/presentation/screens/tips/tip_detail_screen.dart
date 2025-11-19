@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yegna_budget/data/models/financial_tip_model.dart';
+import 'package:yegna_budget/data/models/icon_mapper.dart';
 
 class TipDetailScreen extends StatelessWidget {
   final FinancialTipModel tip;
@@ -30,7 +31,11 @@ class TipDetailScreen extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Text(tip.icon, style: const TextStyle(fontSize: 28)),
+                buildMappedIcon(
+                  tip.icon,
+                  size: 28,
+                  color: theme.colorScheme.primary,
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -62,7 +67,7 @@ class TipDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
-          // Quotes carousel (if you add quotes later)
+          // Quotes carousel (optional)
           if (tip.details.contains("“")) ...[
             Text("Quotes", style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
@@ -105,8 +110,8 @@ class TipDetailScreen extends StatelessWidget {
           ],
           const SizedBox(height: 24),
 
-          // SDG1 banner
-          _SdgBanner(),
+          // SDG banners
+          const _SdgBanner(),
 
           const SizedBox(height: 24),
 
@@ -120,7 +125,8 @@ class TipDetailScreen extends StatelessWidget {
                     label: const Text("Share"),
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Share feature coming soon!")),
+                        const SnackBar(
+                            content: Text("Share feature coming soon!")),
                       );
                     },
                   ),
@@ -147,6 +153,8 @@ class TipDetailScreen extends StatelessWidget {
 }
 
 class _SdgBanner extends StatefulWidget {
+  const _SdgBanner();
+
   @override
   State<_SdgBanner> createState() => _SdgBannerState();
 }
@@ -180,34 +188,76 @@ class _SdgBannerState extends State<_SdgBanner>
     return AnimatedBuilder(
       animation: _glow,
       builder: (_, __) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: LinearGradient(
-              colors: [
-                theme.colorScheme.primary.withOpacity(0.08 + _glow.value),
-                theme.colorScheme.primary.withOpacity(0.02),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(
-              color: theme.colorScheme.primary.withOpacity(0.25),
-            ),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.public, size: 26),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Aligned with SDG 1: No Poverty — building resilience through micro‑savings, budgeting, and community support.',
-                  style: theme.textTheme.bodyMedium,
+        return Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary.withOpacity(0.08 + _glow.value),
+                    theme.colorScheme.primary.withOpacity(0.02),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(
+                  color: theme.colorScheme.primary.withOpacity(0.25),
                 ),
               ),
-            ],
-          ),
+              child: Row(
+                children: [
+                  buildMappedIcon(
+                    "sdg1", // add this key in iconMap
+                    size: 26,
+                    color: theme.colorScheme.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Aligned with SDG 1: No Poverty — building resilience through micro‑savings, budgeting, and community support.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.secondary.withOpacity(0.08 + _glow.value),
+                    theme.colorScheme.secondary.withOpacity(0.02),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(
+                  color: theme.colorScheme.secondary.withOpacity(0.25),
+                ),
+              ),
+              child: Row(
+                children: [
+                  buildMappedIcon(
+                    "sdg4", // add this key in iconMap
+                    size: 26,
+                    color: theme.colorScheme.secondary,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Aligned with SDG 4: Quality Education — empowering learners with financial literacy and lifelong skills.',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         );
       },
     );

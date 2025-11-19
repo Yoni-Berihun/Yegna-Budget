@@ -35,6 +35,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
   assets:
     - assets/data/financial_tips.json
     - assets/images/buffer_tip.png
@@ -43,5 +44,18 @@ flutter:
     - assets/lottie/Success.json
     - assets/lottie/wrong.json
     - assets/icons/
-
-   
+    - assets/icons/apps.svg
+    - assets/icons/budget.svg
+    - assets/icons/caleder_today.svg
+    - assets/icons/coffee.svg
+    - assets/icons/credit_card.svg
+    - assets/icons/emergency.svg
+    - assets/icons/emoji_events.svg
+    - assets/icons/envelope.svg
+    - assets/icons/event.svg
+    - assets/icons/flag.svg
+    - assets/icons/meal.svg
+    - assets/icons/pie_chart.svg
+    - assets/icons/savings.svg
+    - assets/icons/shopping_card.svg
+    - assets/icons/lightbulb.svg
