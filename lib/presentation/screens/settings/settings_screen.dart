@@ -5,8 +5,6 @@ import '../../../logic/providers/theme_provider.dart';
 import '../../../logic/providers/user_provider.dart';
 import '../../../services/export_service.dart';
 import '../../../services/budget_storage_service.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:yegna_budget/data/models/icon_mapper.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -218,16 +216,6 @@ class SettingsScreen extends ConsumerWidget {
                     subtitle: const Text('App version and information'),
                     onTap: () => _showAboutDialog(context),
                   ),
-                  const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(
-                      Icons.developer_mode,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    title: const Text('Developer'),
-                    subtitle: const Text('Meet the developer'),
-                    onTap: () => _showDeveloperDialog(context),
-                  ),
                 ],
               ),
             ),
@@ -308,7 +296,7 @@ class SettingsScreen extends ConsumerWidget {
         ),
       );
 
-           await ExportService.exportToPDF(budget);
+      await ExportService.exportToPDF(budget);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -443,70 +431,8 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
   }
-
-void _showDeveloperDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Developer'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ClipOval(
-            child: Image.asset(
-              'assets/images/developer.jpg', // your picture
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            'Hi, I am Yonatan Berihun, the developer of YegnaBudget. '
-            'This app was built to empower students and communities '
-            'with financial literacy and practical budgeting tools.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-
-          // Social links
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.telegram, color: Colors.blue),
-                onPressed: () async {
-                  final uri = Uri.parse("https://flutter.dev");
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-              ),
-              const SizedBox(width: 12),
-              IconButton(
-                icon: const Icon(Icons.camera_alt, color: Colors.purple),
-                onPressed: () async {
-                  final uri = Uri.parse("https://instagram.com/yoni_berihun");
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri, mode: LaunchMode.externalApplication);
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
 }
-}
-// Reusable export option tile
+
 class _ExportOptionTile extends StatelessWidget {
   final IconData icon;
   final String title;
@@ -541,7 +467,6 @@ class _ExportOptionTile extends StatelessWidget {
   }
 }
 
-// Reusable stat item
 class _StatItem extends StatelessWidget {
   final String label;
   final String value;
@@ -564,119 +489,4 @@ class _StatItem extends StatelessWidget {
       ),
     );
   }
-}
-void _showDeveloperDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text('Developer'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Profile picture
-          ClipOval(
-            child: Image.asset(
-              'assets/images/developer.jpg', // <-- your picture
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-            ),
-          ),
-          const SizedBox(height: 12),
-
-          // Intro paragraph
-          const Text(
-            'Hi, I am Yonatan Berihun, the developer of YegnaBudget. '
-            'This app was built to empower students and communities '
-            'with financial literacy and practical budgeting tools.',
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-
-          // Social links row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Telegram button
-              IconButton(
-                icon: buildMappedIcon("telegram", size: 28, color: Colors.blue),
-                onPressed: () async {
-                  final uri = Uri.parse("https://t.me/Yoni_xyz");
-                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open Telegram")),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(width: 12),
-
-              // Instagram button
-              IconButton(
-                icon: buildMappedIcon("instagram", size: 28, color: Colors.purple),
-                onPressed: () async {
-                  final uri = Uri.parse("https://instagram.com/yoni_berihun");
-                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open Instagram")),
-                    );
-                  }
-                },
-              ),
-              const SizedBox(width: 12),
-
-              // WhatsApp button
-              IconButton(
-                icon: buildMappedIcon("whatsapp", size: 28, color: Colors.green),
-                onPressed: () async {
-                  // Replace with your WhatsApp number in international format
-                  final uri = Uri.parse("https://wa.me/251991134526"); 
-                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open WhatsApp")),
-                    );
-                  }
-                },
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
-          // Contact section
-          Column(
-            children: [
-              const Text(
-                "Contact me at:",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              GestureDetector(
-                onTap: () async {
-                  final uri = Uri.parse("https://t.me/Yoni_verse");
-                  if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not open Telegram group")),
-                    );
-                  }
-                },
-                child: const Text(
-                  "Join my Telegram community",
-                  style: TextStyle(
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Close'),
-        ),
-      ],
-    ),
-  );
 }

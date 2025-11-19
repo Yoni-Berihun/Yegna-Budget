@@ -104,24 +104,24 @@ class _HomeContentState extends ConsumerState<HomeContent> {
                 ),
               ),
             ),
-         SliverPadding(
-  padding: const EdgeInsets.symmetric(horizontal: 16),
-  sliver: SliverToBoxAdapter(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
-        SectionTitle(text: 'Financial Tips', icon: Icons.lightbulb),
-        SizedBox(height: 12),
-        TipsCarousel(),
-        SizedBox(height: 32),
-        SectionTitle(text: 'Budget Analysis', icon: Icons.bar_chart),
-        SizedBox(height: 12),
-        AnalysisCard(),
-        SizedBox(height: 120),
-      ],
-    ),
-  ),
-),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              sliver: SliverToBoxAdapter(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    SectionTitle(text: '💡 Financial Tips'),
+                    SizedBox(height: 12),
+                    TipsCarousel(),
+                    SizedBox(height: 32),
+                    SectionTitle(text: '📊 Budget Analysis'),
+                    SizedBox(height: 12),
+                    AnalysisCard(),
+                    SizedBox(height: 120),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -437,24 +437,17 @@ class BudgetSummaryCard extends StatelessWidget {
 }
 
 class SectionTitle extends StatelessWidget {
-  const SectionTitle({super.key, required this.text, required this.icon});
+  const SectionTitle({super.key, required this.text});
 
   final String text;
-  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 20, color: theme.colorScheme.primary),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        ),
-      ],
+    return Text(
+      text,
+      style: Theme.of(
+        context,
+      ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
     );
   }
 }

@@ -61,3 +61,6 @@ flutter:
     - assets/icons/shopping_card.svg
     - assets/icons/lightbulb.svg
     - assets/images/developer.jpg
+    - assets/icons/telegram.svg
+    - assets/icons/instagram.svg
+    - assets/icons/whatsapp.svg
