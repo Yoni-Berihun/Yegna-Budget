@@ -2,7 +2,7 @@
 
 # YegnaBudget: Empowering Financial Clarity for Ethiopian Students
 
-![YegnaBudget Banner](banner.png)  
+![YegnaBudget Banner](app-banner.png)  
 *Your journey to financial confidence starts here – A digital guide for mindful spending.*
 
 ---
@@ -48,11 +48,14 @@ From debugging build errors to managing state in the app, this project reflects 
 
 See how YegnaBudget brings financial clarity to your fingertips:
 
-![Onboarding Flow Screenshot](im1.jpg)  
+![Onboarding Flow Screenshot](onboarding.jpg)  
 *Step into control: Our onboarding welcomes you with warmth and purpose.*
 
-![Expense Logging Screenshot](im2.jpg)  
+![Expense Logging Screenshot](expense.jpg)  
 *Track and reflect: Clean UI for daily entries and monthly summaries.*
+
+![Expense Logging Screenshot](tips.jpg)  
+*Learn and change yourself: Clean UI for daily tips and financial lessons.*
 
 ![QR Code for APK Download](qr.png)  
 *Scan to Download: Get the APK from Google Drive and start budgeting today!*
