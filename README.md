@@ -57,7 +57,7 @@ See how YegnaBudget brings financial clarity to your fingertips:
 ![Expense Logging Screenshot](tips.jpg)  
 *Learn and change yourself: Clean UI for daily tips and financial lessons.*
 
-![QR Code for APK Download](qr.png)  
+![QR Code for APK Download](app-qr.png)  
 *Scan to Download: Get the APK from Google Drive and start budgeting today!*
 
 
@@ -75,5 +75,5 @@ No journey is complete without gratitude. YegnaBudget was shaped by the support 
 
 
 *Made with ❤️ by Yonatan B.*  
-![Footer SVG](https://media.licdn.com/dms/image/v2/D4E16AQEec1ZDalBh6A/profile-displaybackgroundimage-shrink_350_1400/B4EZf4jq4KHwAY-/0/1752221794697?e=1758758400&v=beta&t=OmjTLV_Q1E0xQt6YiwqRVNCLvs2GAkp5u1oldTY_Zpc)
+![Footer SVG](mybanner.jpg)
 
