@@ -47,7 +47,7 @@ flutter:
     - assets/data/financial_tips.json
     - assets/images/buffer_tip.png
     - assets/images/spending_chart.png
-    - assets/images/logo.png
+    - assets/logo.png
     - assets/lottie/Success.json
     - assets/lottie/wrong.json
     - assets/icons/
@@ -69,4 +69,4 @@ flutter:
     - assets/images/developer.jpg
     - assets/icons/instagram.svg
     - assets/icons/whatsapp.svg
-    - assets/icons/telegramlogo.svg
+    - assets/telegramlogo.svg

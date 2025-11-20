@@ -18,7 +18,7 @@ final Map<String, String> iconMap = {
   "savings": "assets/icons/savings.svg",
   "shopping": "assets/icons/shopping_card.svg",
   "lightbulb": "assets/icons/lightbulb.svg",
-  "telegram": "assets/icons/telegram.svg",
+  "telegram": "assets/icons/telegramlogo.svg",
   "instagram": "assets/icons/instagram.svg",
   "whatsapp": "assets/icons/whatsapp.svg",
 };
