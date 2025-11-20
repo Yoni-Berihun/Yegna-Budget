@@ -1,6 +1,6 @@
 
 
-# YegnaBudget: Empowering Financial Clarity for Ethiopian Students
+# YegnaBudget: Empowering Financial Clarity for Ethiopian University Students
 
 ![YegnaBudget Banner](app-banner.png)  
 *Your journey to financial confidence starts here – A digital guide for mindful spending.*
@@ -22,7 +22,9 @@ YegnaBudget is a **Personal Expense Tracker and Financial Literacy App** built w
 YegnaBudget transforms how you engage with your money. Here's how it supports your journey:
 
 - **Daily Expense Logging Made Simple** 📝: Add and categorize your spending with just a few taps, no clutter, no confusion.
-- **Smart Notifications for Habit Building** 🔔: Get gentle reminders every evening to reflect on your spending and stay consistent.
+- **Integrated Ethiopian Calender** :Localized Calender for ethiopian culrture.
+- **Smart Expense Tracking & Analysis Simple daily logging, detailed expense/budget breakdowns, and exportable reports (PDF/CSV).***
+- **Smart Notifications for Habit Building** 🔔: Get reminders every day to reflect on your spending and stay consistent.
 - **Culturally Rooted Onboarding Experience** 🎨: Enjoy a welcoming splash screen with a brown gradient and strict Amharic script logo that feels authentically yours.
 - **Visual Insights for Smarter Choices** 📊: View summaries and trends to understand where your money goes, and where it could go better.
 - **Lightweight and Offline-Friendly** 📱: Designed to work smoothly even with limited connectivity, perfect for campus life.
@@ -58,7 +60,7 @@ See how YegnaBudget brings financial clarity to your fingertips:
 *Learn and change yourself: Clean UI for daily tips and financial lessons.*
 
 ![QR Code for APK Download](app-qr.png)  
-*Scan to Download: Get the APK from Google Drive and start budgeting today!*
+*Scan to Download: Get the APK from Github and start budgeting today!*
 
 
 
@@ -70,7 +72,7 @@ No journey is complete without gratitude. YegnaBudget was shaped by the support 
 * **Mr. Allan Lenkaa** 🤝: As a Mobile App Development module lead in PLP Africa, thank you for helping me grasp real-world concepts and inspiring me to work on impactful projects.
 * **Mr. Denamo Markos** 📘: Thank you for your guidance and belief in student-led innovation.
 * **Ms. Ruth Abiti** 🌟: Your support helped me refine both the vision and the execution.
-* **My Campus Volunteers** 👥: For testing features, sharing feedback, and helping shape the app’s soul.
+* **My Campus Friends & Volunteers** 👥: For testing features, sharing feedback, and helping shape the app’s soul.
 
 
 
